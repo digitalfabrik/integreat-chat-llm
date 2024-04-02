@@ -33,8 +33,18 @@ prompt = hub.pull("rlm/rag-prompt")
 llm = Ollama(model=MODEL)
 print("Model load successfull")
 
+llm_2 = Ollama(model="phi")
+
+
 rag_chain = (
     {"context": retriever, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+rag_chain_2 = (
+     {"context": retriever, "question": RunnablePassthrough()}
     | prompt
     | llm
     | StrOutputParser()

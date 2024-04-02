@@ -1,0 +1,36 @@
+Model: GIST-Embedding-v0
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 1:
+
+Learning German online You can learn German on your smartphone or on your computer. Take advantage of the many, often free offers to learn German quickly and make the best use of the time you have to wait before your language course begins. The online trainer can also be useful during your language course.
+Metadata: {'source': '../../data/muenchen_en/2885933.txt'}
+Model: GIST-Embedding-v0
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 2:
+
+The radio station  Deutsche Welle offers online language exercises that use video clips and video series. They are matched to the language levels A1 to C and are a fun addition to any other German course you might be studying. DaFür – German as a foreign language contains online modules and apps for learners with and without basic knowledge of the language. The app  MeinVokabular (My Vocabulary) from the Handwerkskammer für Mittelfranken lets you create your own dictionary and vocabulary flash cards using photos. You can find many important expressions or activities for individual jobs at  Meine Berufserfahrung (My job experience). The Youtube channel  Hallo Deutschschule  teaches languages levels from A1 to B2 in cartoon films with many dialogues. The  YouTuber Deiaa Abdullah from Syria gives German lessons in Arabic, as well as many tips for your first days and months in Germany and explains German everyday life and the German mentality in an entertaining way.
+Metadata: {'source': '../../data/muenchen_en/2885933.txt'}
+Model: GIST-Embedding-v0
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 3:
+
+When you live in Germany, it is important that you learn to speak German. If you speak German, this will help you in everyday life and in your contact with other people. Also, if you want to start working, start an education or course of studies, it is very important to know the language. There are different language levels that build upon one another. The levels used in the language and integration courses correspond to the levels of the Common European Framework.
+Metadata: {'source': '../../data/muenchen_en/1803832.txt'}
+Model: GIST-Embedding-v0
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 4:
+
+German courses run by the city of Munich If you want to live in Germany, it’s very important to learn the German Language.
+
+You don’t have access to an integration course? You would like to improve your German skills? You can’t afford to pay for a German language class?
+
+Then use the course programmes run by the city of Munich! The programme ranges from literacy classes to C2 level. There are special courses for adolescents and with occupational content. For everyone – right from the beginning! More information is available in the »» integration advice centre IBZ-Sprache und Beruf
+Metadata: {'source': '../../data/muenchen_en/1799685.txt'}

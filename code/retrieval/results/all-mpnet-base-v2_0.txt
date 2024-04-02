@@ -1,0 +1,32 @@
+Model: all-mpnet-base-v2
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 1:
+
+Learning German online You can learn German on your smartphone or on your computer. Take advantage of the many, often free offers to learn German quickly and make the best use of the time you have to wait before your language course begins. The online trainer can also be useful during your language course.
+Metadata: {'source': '../../data/muenchen_en/2885933.txt'}
+Model: all-mpnet-base-v2
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 2:
+
+Literacy courses In order to be able to read and write German, you have to know the Latin alphabet. These aids are useful for learning Latin letters: Serlo ABC Serlo ABC is a free-of-charge app especially for adolescents and young adults aged between 15 and 30 years old that enables them independently and intuitively to learn the Latin alphabet give them language skills at the same time. The app is officially recognised as learning material for use in literacy courses and second alphabet courses. Find out more VHS-Lernportal The portal offers a German course with plenty of material for developing literacy. Find out more
+Metadata: {'source': '../../data/muenchen_en/2768707.txt'}
+Model: all-mpnet-base-v2
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 3:
+
+Communication aids If you do not speak German yet, it may be difficult to communicate with others. There are free communication aids that you can use: Refugee Phrasebook: multilingual free dictionary on different topics You can also use free apps that translate things for you: Google Translate (→  Android and  IOS) DeepL (uses artificial intelligence; available in English, Spanish, Polish, Dutch, French and Italian) Voice Translator (Android),  Voice Translator pro Speech (IOS) Oroboo Angel (placements for language partners, free video/audio translations for problem situations, 5-minute chat with possibility to extend time, many languages combinations!) The picture dictionary helps when you need to see a doctor.
+Metadata: {'source': '../../data/muenchen_en/265736.txt'}
+Model: all-mpnet-base-v2
+Query: How can I learn German?
+
+----------------------------------------------------------------------------------------------------
+Document 4:
+
+Advice and referrals to German language courses When you live in Germany, it is important that you learn to speak German. If you speak German, this will help you in everyday life and in your contact with other people. Also, if you want to start working, start a training course or study for a degree at university, it is very important to know the language. There are different language levels that build upon one another. The levels used in the language and integration courses correspond to the »» levels of the Common European Framework. The range of German course programmes and different types of course is huge. The courses are aimed at different groups of people. The following advice centres are available to help you in your search for the right course: Asylum seekers / people with tolerated status (Duldung): The »» refugee and integration advice centres in the hostels (FIB) support residents in registering for German courses for initial orientation and refer them to centres that give
+Metadata: {'source': '../../data/muenchen_en/1801003.txt'}

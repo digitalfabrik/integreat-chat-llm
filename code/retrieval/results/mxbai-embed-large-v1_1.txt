@@ -1,0 +1,92 @@
+Model: mxbai-embed-large-v1
+Query: Tell me about Children emergency service
+
+----------------------------------------------------------------------------------------------------
+Document 1:
+
+Find out more
+
+Who’s it for: Families and individual family members
+
+Interpreters are available on request.
+
+The service is free.
+
+Kinderschutzbund KinderschutzZentrum München
+
+Kapuzinerstraße 9D
+
+80337 Munich
+
+089/555356
+
+kischuz@dksb-muc.de
+
+Monday to Thursday 09:00 - 12:30 and 13:30 - 17:00
+
+Friday 09:00 - 12:30 and 13:30 - 16:00
+
+Telephone on-call service: Monday to Friday 19:00 - 20:00
+
+Saturday, Sunday, public holidays 9:30 - 11:30
+
+This text contains information about the following search terms:
+
+Advice for parents, Kinderschutz Zentrum, child protection centre, advice for children, advice for adolescents, family centre, family advice, abuse of children, violence, arguments, children’s rights
+Metadata: {'source': '../../data/muenchen_en/274596.txt'}
+Model: mxbai-embed-large-v1
+Query: Tell me about Children emergency service
+
+----------------------------------------------------------------------------------------------------
+Document 2:
+
+Children’s emergency medical services
+
+There is a separate emergency service for children and newborn babies; the emergency number is the same for other acute emergencies.
+
+Emergency doctor for children: 112
+
+Emergency doctor for newborn babies: 112
+
+You contact the Bereitschaftsdienst (on-call medical service) if you are ill but it is not an acute emergency situation. This service takes on the medical service during the night, at the weekend and on public holidays. You learn there where you can take your child or whether a doctor can come to you at home.
+
+116117
+
+You can take your child to an on-call medical practice outside the normal medical consultation times. However, you should only go to the emergency department if you really have an acute emergency (“serious and life-threatening illness”, such as an accident).
+
+On-call medical practice Elisenhof
+
+Emergency service Munich Central
+
+Prielmayerstraße 3
+
+80335 Munich
+
+116117
+
+Monday 19:00 - 23:00
+
+Tuesday 19:00 - 23:00
+Metadata: {'source': '../../data/muenchen_en/2295135.txt'}
+Model: mxbai-embed-large-v1
+Query: Tell me about Children emergency service
+
+----------------------------------------------------------------------------------------------------
+Document 3:
+
+Children’s emergency medical services There is a separate emergency service for children and newborn babies; the emergency number is the same for other acute emergencies. Emergency doctor for children: 112 Emergency doctor for newborn babies: 112 On-call medical practice ElisenhofEmergency service Munich CentralPrielmeyerstraße 3 (in the main railway station)80335 Munich 116117  Monday 19:00 - 23:00Tuesday 19:00 - 23:00Wednesday 14:00 - 23:00Thursday 19:00 - 23:00Friday 14:00 - 23:00Saturday, Sunday, public holidays 08:00 - 23:00 Klinikum Dritter OrdenKinderklinikEmergency admissionsFranz-Schrank-Straße 880638 Munich 089/17951187 Kinderklinik im Dr. von Hauner'schen KinderspitalEmergency admissionsLindwurmstraße 480337 Munich 089/440052811 Monday to Friday 09:00 - 16:00 Children’s ward Krankenhaus HarlachingSanatoriumsplatz 281545 Munich 089/62102717 On-call medical practiceSaturday, Sunday, public holidays 09:00 - 20:00during the remaining times, treatment by the doctors of the
+Metadata: {'source': '../../data/muenchen_en/4315424.txt'}
+Model: mxbai-embed-large-v1
+Query: Tell me about Children emergency service
+
+----------------------------------------------------------------------------------------------------
+Document 4:
+
+The family midwives will come to you until the child is three months old. After that, we can refer you to other services. Services for children up to 6 years of age:
+
+Our nurses visit you and your child directly in your accommodation. There are consultation hours and group training sessions in the accommodation. Support in connecting with doctors for children and adolescents
+
+Advice on topics such as breastfeeding, nutrition, sleeping, vaccinations, dental health, accident prevention, FGM (female genital mutilation).The nurses look after families with babies and children up to 6 years of age. For older children, we can refer you to other services. Services for people over the age of 6:
+
+Carers assess your health needs. Counselling on health, medical and integrative issues, on how to deal with chronic illnesses and disabilities, on nutrition, therapies or taking medication Support in connecting you with doctors and clinics
+Metadata: {'source': '../../data/muenchen_en/5387866.txt'}

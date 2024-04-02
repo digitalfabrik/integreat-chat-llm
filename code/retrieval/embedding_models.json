@@ -1,0 +1,37 @@
+[
+    {
+        "number": "1",
+        "model_base": "intfloat",
+        "model_name": "e5-base-v2",
+        "license": "mit",
+        "source": "https://huggingface.co/intfloat/e5-base-v2"
+    },
+    {
+        "number": "2",
+        "model_base": "sentence-transformers",
+        "model_name": "all-mpnet-base-v2",
+        "license": "apache-2.0",
+        "source": "https://huggingface.co/sentence-transformers/all-mpnet-base-v2"
+    },
+    {
+        "number": "3",
+        "model_base": "mixedbread-ai",
+        "model_name": "mxbai-embed-large-v1",
+        "license": "apache-2.0",
+        "source": "https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1"
+    },
+    {
+        "number": "4",
+        "model_base": "avsolatorio",
+        "model_name": "GIST-Embedding-v0",
+        "license": "mit",
+        "source": "https://huggingface.co/avsolatorio/GIST-Embedding-v0"
+    },
+    {
+        "number": "5",
+        "model_base": "sentence-transformers",
+        "model_name": "all-MiniLM-L6-v2",
+        "license": "apache-2.0",
+        "source": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+    }
+]
