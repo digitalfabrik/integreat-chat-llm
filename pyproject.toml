@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "integreat_chat"
+description = "Machine Learning Back End for the Integreat Chat functionality"
+version = "2024.6.0"
+authors = [{name = "Tür an Tür Digitalfabrik gGmbH", email = "tech@tuerantuer.org"}]
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = [
+  "Integreat"
+]
+license = {text = "Apache 2.0 License"}
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+]
+
+dependencies = [
+  "django",
+  "langchain",
+  "langchain-community",
+  "transformers @ git+https://github.com/huggingface/transformers",
+  "huggingface_hub",
+  "llama-cpp-python",
+  "numpy"
+]
+
+
+[project.optional-dependencies]
+dev = []
+
+[project.urls]
+"Homepage" = "https://tuerantuer.de/digitalfabrik"
+"Source Code" = "https://github.com/digitalfabrik/integreat-chat"
+"Issues" = "https://github.com/digitalfabrik/integreat-chat/issues"
+
+[tool.setuptools]
+script-files = ["integreat_chat/manage.py"]
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+include = ["integreat_chat*"]
