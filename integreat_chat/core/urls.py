@@ -18,6 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('keywords/', include('keywords.urls')),
-    path('chatanswers/', include('chatanswers.urls')),
+    path('keywords/', include('integreat_chat.keywords.urls')),
+    path('chatanswers/', include('integreat_chat.chatanswers.urls')),
 ]
