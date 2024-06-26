@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u*mc*mu#()r6qdrotm(1=+kuo!2-*76fav*-m*m3e8v+hutfn(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 
 
 # Application definition
@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'keywords',
-    'chatanswers',
+    'integreat_chat.keywords',
+    'integreat_chat.chatanswers',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = 'integreat_chat.core.urls'
 
 TEMPLATES = [
     {
