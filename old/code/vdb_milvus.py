@@ -18,9 +18,9 @@ data_split = text_splitter.split_documents(docs)
 
 embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, show_progress=True)
 
-vdb = Milvus.from_documents(data_split, embeddings, connection_args={"host": MILVUS_URL, "port": MILVUS_PORT})
+vdb = Milvus.from_documents(data_split, embeddings, collection_name="collection_1", connection_args={"host": MILVUS_URL, "port": MILVUS_PORT})
 
-sample_query = "How can I learn German?"
+#sample_query = "How can I learn German?"
 
-result = vdb.similarity_search(sample_query)
-print(result)
+#result = vdb.similarity_search(sample_query)
+#print(result)

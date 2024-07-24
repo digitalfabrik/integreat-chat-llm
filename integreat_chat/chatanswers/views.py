@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from .services.answer_service import AnswerService
 
 def extract_answer(request):
     """
@@ -9,7 +10,9 @@ def extract_answer(request):
         data = json.loads(request.body)
         question = data["message"]
         language = data["language"]
+        answer_service = AnswerService(language)
+        answer = answer_service.extract_answer(question)
 
     # keyword extraction code goes here
 
-    return JsonResponse({"answer":[]})
+    return JsonResponse({"answer":[answer]})
