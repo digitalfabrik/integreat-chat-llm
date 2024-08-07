@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from .services.answer_service import AnswerService
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.conf import settings
 
 @csrf_exempt
 def extract_answer(request):
@@ -14,6 +15,6 @@ def extract_answer(request):
         data = json.loads(request.body)
         question = data["message"]
         language = data["language"]
-        answer_service = AnswerService.get_instance(language)
-        answer = answer_service.extract_answer(question)
+        #answer_service = AnswerService.get_instance(language)
+        answer = settings.ANSWER_SERVICE.extract_answer(question)
     return JsonResponse({"answer": answer})
