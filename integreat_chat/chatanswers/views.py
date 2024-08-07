@@ -1,18 +1,19 @@
 from django.http import JsonResponse
 from .services.answer_service import AnswerService
+from django.views.decorators.csrf import csrf_exempt
+import json
 
+@csrf_exempt
 def extract_answer(request):
     """
     Extract an answer for a user query from Integreat content. Expects a JSON body with message
     and language attributes
     """
+    answer = None
     if request.method in ('POST') and request.META.get('CONTENT_TYPE').lower() == 'application/json':
         data = json.loads(request.body)
         question = data["message"]
         language = data["language"]
-        answer_service = AnswerService(language)
+        answer_service = AnswerService.get_instance(language)
         answer = answer_service.extract_answer(question)
-
-    # keyword extraction code goes here
-
-    return JsonResponse({"answer":[answer]})
+    return JsonResponse({"answer": answer})
