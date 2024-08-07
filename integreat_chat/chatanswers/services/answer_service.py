@@ -21,31 +21,19 @@ class AnswerService:
         return AnswerService._instance
 
     def __init__(self, language):
+        print("Initializing Models")
         self.language = language
-        config_path = os.path.join(settings.BASE_DIR, "chatanswers", "services", "config.json")
         
         # Load models
-        #self.config = self.load_config(config_path)
-        """
-        self.llm_model_name = self.config["model_llm"]
-        self.embedding_model_name = self.config["model_embeddings"]
+        self.llm_model_name = settings.MODEL_LLM
+        self.embedding_model_name = settings.MODEL_EMBEDDINGS
         self.embedding_model = self.load_embeddings(self.embedding_model_name)
-        """
-        self.llm_model_name = "wizardlm2:latest"
-        self.embedding_model_name = "all-MiniLM-L6-v2"
-        self.embedding_model = self.load_embeddings(self.embedding_model_name)
-        # Load vdb collection
-        """
-        self.vdb_URI = self.config["vdb_URI"]
-        self.vdb_port = self.config["vdb_port"]
-        self.vdb_collection = self.config["vdb_collection"]
-        """
-
-        self.vdb_URI = "127.0.0.1"
-        self.vdb_port = "19530"
-        self.vdb_collection = "collection_1"
+       
+        self.vdb_URI = settings.VDB_URI
+        self.vdb_port = settings.VDB_PORT
+        self.vdb_collection = settings.VDB_COLLECTION
         self.vdb = self.load_vdb(self.vdb_URI, self.vdb_port, self.vdb_collection, self.embedding_model)
-
+        
         # Load LLM
         self.llm = self.load_llm(self.llm_model_name)
     
@@ -55,17 +43,14 @@ class AnswerService:
         return config
     
     def load_llm(self, llm_model_name):
-        print("Loading LLM model")
         llm = Ollama(model=llm_model_name)
         return llm
 
     def load_embeddings(self, embedding_model_name):
-        print("Loading embeddings")
         embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name, show_progress=True)
         return embeddings
 
     def load_vdb(self, URI, port, collection, embeddings):
-        print("Loading vdb")
         vdb = Milvus(
                 embeddings,
                 connection_args={"host": URI, "port": port},
