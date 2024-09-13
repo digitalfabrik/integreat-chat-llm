@@ -15,6 +15,7 @@ def extract_answer(request):
         data = json.loads(request.body)
         question = data["message"]
         language = data["language"]
-        #answer_service = AnswerService.get_instance(language)
+        print(f"Message ({language}): {message}", file=sys.stderr)
         answer = settings.ANSWER_SERVICE.extract_answer(question)
+        print(f"Answer: {answer}", file=sys.stderr)
     return JsonResponse({"answer": answer})
