@@ -35,7 +35,9 @@ VDB_PORT = "19530"
 VDB_COLLECTION = "collection_1"
 
 # Create Instance of AnswerService
+print(f"Starting answering service", file=sys.stderr)
 ANSWER_SERVICE = AnswerService.get_instance("en")
+print(f"Answering service is running", file=sys.stderr)
 
 # Application definition
 
