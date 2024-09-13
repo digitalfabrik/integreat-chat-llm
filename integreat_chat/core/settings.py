@@ -13,6 +13,30 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from integreat_chat.chatanswers.services.answer_service import AnswerService
 
+import logging
+import logging.handlers
+
+# Django logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'apache': {
+            'level': 'DEBUG',  # Set log level as per your needs
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stderr',  # Logs to Apache's error log
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['apache'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,12 +54,10 @@ ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 # Configuration Variables for answer service
 MODEL_LLM = "wizardlm2:latest"
 MODEL_EMBEDDINGS = "all-MiniLM-L6-v2"
-VDB_URI = "127.0.0.1"
+VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
-VDB_COLLECTION = "collection_1"
 
-# Create Instance of AnswerService
-ANSWER_SERVICE = AnswerService.get_instance("en")
+OLLAMA_BASE_PATH="http://10.137.0.1:11434"
 
 # Application definition
 
