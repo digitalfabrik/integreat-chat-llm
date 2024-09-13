@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import sys
 
 from pathlib import Path
 from integreat_chat.chatanswers.services.answer_service import AnswerService
