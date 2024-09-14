@@ -66,4 +66,4 @@ class AnswerService:
                 | StrOutputParser()
         )
         answer = rag_chain.invoke(question)
-        return {"answer": answer, "sources": [result.metadata["source"] for result in results[:3]]}
+        return {"answer": answer, "sources": {result.metadata["source"] for result in results[:3]}}
