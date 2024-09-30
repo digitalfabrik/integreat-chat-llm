@@ -26,10 +26,8 @@ def extract_answer(request):
         question = data["message"]
         language = data["language"]
         region = data["region"]
-        LOGGER.error("Starting answer extraction.")
         answer_service = AnswerService(region, language)
         result = answer_service.extract_answer(question)
-        LOGGER.error("Finished answer extraction.")
     return JsonResponse(result)
 
 @csrf_exempt

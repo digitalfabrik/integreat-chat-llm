@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import logging.handlers
+
 from integreat_chat.chatanswers.services.answer_service import AnswerService
 
-import logging
-import logging.handlers
+from langsmith import Client
+from langchain_huggingface import HuggingFaceEmbeddings
 
 # Django logging configuration
 LOGGING = {
@@ -56,6 +58,8 @@ MODEL_LLM = "wizardlm2:latest"
 MODEL_EMBEDDINGS = "all-MiniLM-L6-v2"
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
+PROMPT = Client().pull_prompt("rlm/rag-prompt")
+EMBEDDINGS = HuggingFaceEmbeddings(model_name=MODEL_EMBEDDINGS, show_progress=False)
 
 OLLAMA_BASE_PATH="http://10.137.0.1:11434"
 

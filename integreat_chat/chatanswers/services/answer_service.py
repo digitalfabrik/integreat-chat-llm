@@ -1,14 +1,13 @@
 """
 Retrieving matching documents for question an create summary text
 """
-import json
-
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain import hub
 from langchain_community.llms import Ollama
 from langchain_milvus.vectorstores import Milvus
+
+#from langchain.runnables.base import RunnableLambda
+from langchain_core.runnables import RunnableLambda
 
 from django.conf import settings
 
@@ -24,29 +23,18 @@ class AnswerService:
     def __init__(self, region, language):
         self.language = language
         self.llm_model_name = settings.MODEL_LLM
-        self.embedding_model_name = settings.MODEL_EMBEDDINGS
-        self.embedding_model = self.load_embeddings(self.embedding_model_name)
 
         self.vdb_host = settings.VDB_HOST
         self.vdb_port = settings.VDB_PORT
         self.vdb_collection = f"collection_ig_{region}_{language}"
         self.vdb = self.load_vdb(self.vdb_host, self.vdb_port,
-                                 self.vdb_collection, self.embedding_model)
+                                 self.vdb_collection, settings.EMBEDDINGS)
 
         self.llm = self.load_llm(self.llm_model_name)
-
-    def load_config(self, config_path):
-        with open(config_path) as f:
-            config = json.load(f)
-        return config
 
     def load_llm(self, llm_model_name):
         llm = Ollama(model=llm_model_name, base_url=settings.OLLAMA_BASE_PATH)
         return llm
-
-    def load_embeddings(self, embedding_model_name):
-        embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name, show_progress=False)
-        return embeddings
 
     def load_vdb(self, URI, port, collection, embedding_model):
         vdb = Milvus(
@@ -55,16 +43,29 @@ class AnswerService:
                 collection_name=collection)
         return vdb
 
+    def doc_details(self, results):
+        """
+        convert result into sources dict
+        """
+        sources = []
+        for source in results:
+            sources.append({"source": source[0].metadata["source"], "score": source[1]})
+        return sources
+
     def extract_answer(self, question):
-        prompt = hub.pull("rlm/rag-prompt")
-        retriever = self.vdb.as_retriever()
-        results = retriever.get_relevant_documents(question)
+        results = self.vdb.similarity_search_with_score(question, k=3)
+        context = RunnableLambda(lambda _: "\n".join(
+            [result[0].page_content for result in results]
+        ))
         rag_chain = (
-            {"context": retriever, "question": RunnablePassthrough()}
-                | prompt
+            {"context": context, "question": RunnablePassthrough()}
+                | settings.PROMPT
                 | self.llm
                 | StrOutputParser()
         )
         answer = rag_chain.invoke(question)
-        return {"answer": answer,
-                "sources": list({result.metadata["source"] for result in results[:3]})}
+        return {
+            "answer": answer,
+            "sources": list({result[0].metadata["source"] for result in results}),
+            "details": self.doc_details(results)
+        }
