@@ -26,23 +26,30 @@ def search_documents(request):
     result = None
     if request.method in ('POST') and request.META.get('CONTENT_TYPE').lower() == 'application/json':
         data = json.loads(request.body)
-        language_service = LanguageService()
-        search_service = SearchService(data["region"], data["language"])
-        if language := language_service.classify_language(data["language"], data["message"]) == data["language"]:
-            result = {
-                "related_documents": search_service.search_documents(data["message"]),
-                "search_term": data["message"]
-            }
+        if ("language" not in data or
+            "message" not in data
+        ):
+            result = {"status":"error"}
         else:
-            translated_message = language_service.translate_message(
-                language,
-                data["language"],
-                data["message"]
-            )
-            result = {
-                "related_documents": search_service.search_documents(translated_message),
-                "search_term": translated_message
-            }
+            language_service = LanguageService()
+            search_service = SearchService(data["region"], data["language"])
+            if language := language_service.classify_language(data["language"], data["message"]) == data["language"]:
+                result = {
+                    "related_documents": search_service.search_documents(data["message"]),
+                    "search_term": data["message"],
+                    "status": "success"
+                }
+            else:
+                translated_message = language_service.translate_message(
+                    language,
+                    data["language"],
+                    data["message"]
+                )
+                result = {
+                    "related_documents": search_service.search_documents(translated_message),
+                    "search_term": translated_message,
+                    "status": "success"
+                }
     return JsonResponse(result)
 
 @csrf_exempt
