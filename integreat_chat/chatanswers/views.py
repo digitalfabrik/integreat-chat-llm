@@ -12,7 +12,6 @@ from integreat_chat.chatanswers.services.search import SearchService
 from .services.milvus import UpdateMilvus
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 
 LOGGER = logging.getLogger('django')
 
