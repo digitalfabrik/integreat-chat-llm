@@ -68,10 +68,18 @@ class AnswerService:
         return False
 
     def extract_answer(self, question):
-        results = self.vdb.similarity_search_with_score(question, k=3)
+        """
+        Create summary answer for question
+        """
+        results = [
+            result for result in self.vdb.similarity_search_with_score(question, k=3)
+            if result[1] < 1.3
+        ]
         context = RunnableLambda(lambda _: "\n".join(
             [result[0].page_content for result in results]
         ))
+        if not results:
+            return {"answer": ""}
         rag_chain = (
             {"context": context, "question": RunnablePassthrough()}
                 | settings.PROMPT
