@@ -86,13 +86,17 @@ def extract_answer(request):
     result = None
     if request.method in ('POST') and request.META.get('CONTENT_TYPE').lower() == 'application/json':
         data = json.loads(request.body)
-        question = data["message"]
-        language = data["language"]
-        region = data["region"]
-        answer_service = AnswerService(region, language)
-        result = { "answer": "" }
-        if answer_service.needs_answer(question):
-            result = answer_service.extract_answer(question)
+        if ("language" not in data or
+            "region" not in data or
+            "message" not in data
+            ):
+            result = {"status":"error"}
+        else:
+            answer_service = AnswerService(data["region"], data["language"])
+            result = {}
+            if answer_service.needs_answer(data["message"]):
+                result = answer_service.extract_answer(data["message"])
+            result["status"] = "success"
     return JsonResponse(result)
 
 @csrf_exempt
