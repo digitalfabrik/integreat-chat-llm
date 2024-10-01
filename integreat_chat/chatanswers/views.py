@@ -54,12 +54,21 @@ def translate_message(request):
     if request.method in ('POST') and request.META.get('CONTENT_TYPE').lower() == 'application/json':
         data = json.loads(request.body)
         language_service = LanguageService()
-
-        result =  language_service.translate_message(
+        if ("source_language" not in data or
+            "target_language" not in data or
+            "message" not in data
+            ):
+            result = {"status":"error"}
+        else:
+            result = {
+                "translation": language_service.translate_message(
                     data["source_language"],
                     data["target_language"],
                     data["message"]
-                )
+                ),
+                "target_language": data["target_language"],
+                "status": "success"
+            }
     return JsonResponse(result)
 
 @csrf_exempt
