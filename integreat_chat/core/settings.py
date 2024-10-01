@@ -11,9 +11,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import logging.handlers
-
-from integreat_chat.chatanswers.services.answer_service import AnswerService
 
 from langsmith import Client
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -54,11 +51,24 @@ DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 
 # Configuration Variables for answer service
-MODEL_LLM = "llama3.1:8b"
+QUESTION_CLASSIFICATION_MODEL = "llama3.2:3b"
+
+LANGUAGE_CLASSIFICATIONH_MODEL = "llama3.2:3b"
+
+TRANSLATION_MODEL = "llama3.1:8b"
+
+RAG_DISTANCE_THRESHOLD = 1.3
+RAG_MAX_DOCUMENTS = 3
+RAG_MODEL = "llama3.1:8b"
+RAG_PROMPT = Client().pull_prompt("rlm/rag-prompt")
+
+SEARCH_MAX_DOCUMENTS = 5
+SEARCH_DISTANCE_THRESHOLD = 1.5
+
 MODEL_EMBEDDINGS = "all-MiniLM-L6-v2"
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
-PROMPT = Client().pull_prompt("rlm/rag-prompt")
+
 EMBEDDINGS = HuggingFaceEmbeddings(model_name=MODEL_EMBEDDINGS, show_progress=False)
 
 OLLAMA_BASE_PATH="http://10.137.0.1:11434"
