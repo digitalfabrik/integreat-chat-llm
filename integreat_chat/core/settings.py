@@ -54,7 +54,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 
 # Configuration Variables for answer service
-MODEL_LLM = "wizardlm2:latest"
+MODEL_LLM = "llama3.1:8b"
 MODEL_EMBEDDINGS = "all-MiniLM-L6-v2"
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"

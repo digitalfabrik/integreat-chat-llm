@@ -3,6 +3,7 @@ Retrieving matching documents for question an create summary text
 """
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts.prompt import PromptTemplate
 from langchain_community.llms import Ollama
 from langchain_milvus.vectorstores import Milvus
 
@@ -51,6 +52,20 @@ class AnswerService:
         for source in results:
             sources.append({"source": source[0].metadata["source"], "score": source[1]})
         return sources
+
+    def needs_answer(self, question):
+        """
+        Check if a chat message is a question
+        """
+        parser = StrOutputParser()
+        prompt = (
+            f"Can the following message considered to be a question? "
+            f"Answer only one word, either yes or no.\nMessage:{question}"
+        )
+        answer = parser.invoke(self.llm.invoke(prompt))
+        if answer.startswith("Yes"):
+            return True
+        return False
 
     def extract_answer(self, question):
         results = self.vdb.similarity_search_with_score(question, k=3)

@@ -27,7 +27,9 @@ def extract_answer(request):
         language = data["language"]
         region = data["region"]
         answer_service = AnswerService(region, language)
-        result = answer_service.extract_answer(question)
+        result = { "answer": "" }
+        if answer_service.needs_answer(question):
+            result = answer_service.extract_answer(question)
     return JsonResponse(result)
 
 @csrf_exempt
