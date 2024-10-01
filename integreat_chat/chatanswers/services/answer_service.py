@@ -3,7 +3,6 @@ Retrieving matching documents for question an create summary text
 """
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts.prompt import PromptTemplate
 from langchain_community.llms import Ollama
 from langchain_milvus.vectorstores import Milvus
 
@@ -23,7 +22,7 @@ class AnswerService:
 
     def __init__(self, region, language):
         self.language = language
-        self.llm_model_name = settings.MODEL_LLM
+        self.llm_model_name = settings.RAG_MODEL
 
         self.vdb_host = settings.VDB_HOST
         self.vdb_port = settings.VDB_PORT
@@ -72,8 +71,9 @@ class AnswerService:
         Create summary answer for question
         """
         results = [
-            result for result in self.vdb.similarity_search_with_score(question, k=3)
-            if result[1] < 1.3
+            result for result in self.vdb.similarity_search_with_score(
+                question, k=settings.RAG_MAX_DOCUMENTS
+            ) if result[1] < settings.RAG_DISTANCE_THRESHOLD
         ]
         context = RunnableLambda(lambda _: "\n".join(
             [result[0].page_content for result in results]
@@ -82,7 +82,7 @@ class AnswerService:
             return {"answer": ""}
         rag_chain = (
             {"context": context, "question": RunnablePassthrough()}
-                | settings.PROMPT
+                | settings.RAG_PROMPT
                 | self.llm
                 | StrOutputParser()
         )
