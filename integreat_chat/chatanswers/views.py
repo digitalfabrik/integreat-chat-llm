@@ -92,10 +92,19 @@ def extract_answer(request):
             ):
             result = {"status":"error"}
         else:
+            language_service = LanguageService()
+            if language := language_service.classify_language(data["language"], data["message"]) != data["language"]:
+                message = language_service.translate_message(
+                    language,
+                    data["language"],
+                    data["message"]
+                )
+            else:
+                message = data["message"]
             answer_service = AnswerService(data["region"], data["language"])
             result = {}
             if answer_service.needs_answer(data["message"]):
-                result = answer_service.extract_answer(data["message"])
+                result = answer_service.extract_answer(message)
             result["status"] = "success"
     return JsonResponse(result)
 
