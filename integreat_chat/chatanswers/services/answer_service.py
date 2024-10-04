@@ -11,6 +11,8 @@ from langchain_core.runnables import RunnableLambda
 
 from django.conf import settings
 
+from .language import LanguageService
+
 class AnswerService:
     _instance = None
 
@@ -79,7 +81,11 @@ class AnswerService:
             [result[0].page_content for result in results]
         ))
         if not results:
-            return {"answer": ""}
+            language_service = LanguageService()
+            return {"answer": language_service.translate_message("en", self.language,
+                "Sorry, we could not find an answer for you in the "
+                "Integreat content. Please wait for a message from a human counsel."
+            )}
         rag_chain = (
             {"context": context, "question": RunnablePassthrough()}
                 | settings.RAG_PROMPT
