@@ -40,6 +40,8 @@ class LanguageService:
         """
         Translate a message from source to target language
         """
+        if source_language == target_language:
+            return message
         prompt = (
             f'The following message is written in the language with language tag "{source_language}". '
             f'Translate the message to the language with the language tag {target_language}. '
