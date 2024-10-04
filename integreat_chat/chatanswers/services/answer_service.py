@@ -77,22 +77,28 @@ class AnswerService:
                 question, k=settings.RAG_MAX_DOCUMENTS
             ) if result[1] < settings.RAG_DISTANCE_THRESHOLD
         ]
-        context = RunnableLambda(lambda _: "\n".join(
-            [result[0].page_content for result in results]
-        ))
         if not results:
             language_service = LanguageService()
             return {"answer": language_service.translate_message("en", self.language,
                 "Sorry, we could not find an answer for you in the "
                 "Integreat content. Please wait for a message from a human counsel."
             )}
-        rag_chain = (
-            {"context": context, "question": RunnablePassthrough()}
-                | settings.RAG_PROMPT
-                | self.llm
-                | StrOutputParser()
-        )
-        answer = rag_chain.invoke(question)
+        context = RunnableLambda(lambda _: "\n".join(
+            [result[0].page_content for result in results]
+        ))
+        prompt = f"""
+You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.
+If the context is not related to the question, say "There is no direct answer in the Integreat content, but the following pages could be related".
+Use three sentences maximum and keep the answer concise.
+
+Question: {question} 
+
+Context: {context} 
+
+Answer:
+"""
+        parser = StrOutputParser()
+        answer = parser.invoke(self.llm.invoke(prompt))
         return {
             "answer": answer,
             "sources": list({result[0].metadata["source"] for result in results}),
