@@ -8,8 +8,10 @@ from langchain_milvus.vectorstores import Milvus
 
 #from langchain.runnables.base import RunnableLambda
 from langchain_core.runnables import RunnableLambda
+from langchain_core.prompts import ChatPromptTemplate
 
 from django.conf import settings
+import json
 
 from .language import LanguageService
 
@@ -68,15 +70,20 @@ class AnswerService:
             return True
         return False
 
+
     def extract_answer(self, question):
         """
         Create summary answer for question
         """
-        results = [
+        results = sorted([
             result for result in self.vdb.similarity_search_with_score(
                 question, k=settings.RAG_MAX_DOCUMENTS
             ) if result[1] < settings.RAG_DISTANCE_THRESHOLD
-        ]
+        ], key=lambda x: x[1])
+        
+        if settings.RAG_RELEVANCE_CHECK:
+            results = [result for result in results if self.check_document_relevance(question, result[0].page_content)]
+
         context = RunnableLambda(lambda _: "\n".join(
             [result[0].page_content for result in results]
         ))
@@ -98,3 +105,28 @@ class AnswerService:
             "sources": list({result[0].metadata["source"] for result in results}),
             "details": self.doc_details(results)
         }
+
+
+    def check_document_relevance(self, question, content):
+        """
+        Check if the retrieved documents are relevant
+        """
+
+        system = """You are a grader assessing relevance of a retrieved document to a user question. \n 
+        If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
+        It does not need to be a stringent test. The goal is to filter out erroneous retrievals. \n
+        Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question and only answer with either 'yes' or 'no'."""
+        
+        grade_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system),
+                ("human", "Retrieved document: \n\n {document} \n\n User question: {question}"),
+            ]
+        )
+        chain = grade_prompt | self.llm | StrOutputParser()
+        
+        response = chain.invoke({"document": content, "question": question})
+        response = response.strip().lower()
+        print(content, '\n', '-'*25)
+        print(f'Relevance - {response}', '\n', '-'*70)
+        return response.startswith("yes")

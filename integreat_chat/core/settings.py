@@ -21,7 +21,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'apache': {
-            'level': 'DEBUG',  # Set log level as per your needs
+            'level': 'INFO',  # Set log level as per your needs
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stderr',  # Logs to Apache's error log
         },
@@ -29,7 +29,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['apache'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },
@@ -61,6 +61,7 @@ RAG_DISTANCE_THRESHOLD = 1.3
 RAG_MAX_DOCUMENTS = 3
 RAG_MODEL = "llama3.1:8b"
 RAG_PROMPT = Client().pull_prompt("rlm/rag-prompt")
+RAG_RELEVANCE_CHECK = True
 
 SEARCH_MAX_DOCUMENTS = 5
 SEARCH_DISTANCE_THRESHOLD = 1.5
