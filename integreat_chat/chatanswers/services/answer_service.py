@@ -127,6 +127,4 @@ class AnswerService:
         
         response = chain.invoke({"document": content, "question": question})
         response = response.strip().lower()
-        print(content, '\n', '-'*25)
-        print(f'Relevance - {response}', '\n', '-'*70)
         return response.startswith("yes")
