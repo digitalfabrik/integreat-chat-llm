@@ -5,10 +5,9 @@ import logging
 
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain_community.llms import Ollama
-
 from langchain_core.runnables import RunnableLambda
 from langchain_core.prompts import PromptTemplate
+from langchain_community.llms import Ollama
 
 from django.conf import settings
 
@@ -21,6 +20,9 @@ LOGGER = logging.getLogger('django')
 
 
 class AnswerService:
+    """
+    Service for providing summary answers to question-like messages.
+    """
     def __init__(self, region, language):
         self.language = language
         self.region = region
