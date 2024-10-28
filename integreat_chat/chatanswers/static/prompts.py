@@ -1,9 +1,12 @@
 """
 Static Prompts
 """
-
+# pylint: disable=C0301,disable=R0903
 
 class Prompts:
+    """
+    Collection of required prompts
+    """
 
     RAG = """You are an assistant for question-answering tasks.
 Use the following pieces of retrieved context to answer the question.
@@ -18,7 +21,9 @@ Answer:
 """
 
     LANGUAGE_CLASSIFICATION = """
-Identify the language of the provided message. Only return the most likely BCP47 language tag that represents the message's language. Do not add any additional words.
+Identify the language of the provided message.
+Only return the most likely BCP47 language tag that represents the message's language.
+Do not add any additional words.
 
 Message: {message}
 """

@@ -2,12 +2,9 @@
 A service to detect languages and translate messages
 """
 
-from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.llms import Ollama
 
-#from langchain.runnables.base import RunnableLambda
-from langchain_core.runnables import RunnableLambda
 from langchain.prompts import PromptTemplate
 
 from django.conf import settings
@@ -24,10 +21,14 @@ class LanguageService:
 
     def classify_language(self, estimated_lang, message):
         """
-        Check if a message fits the estimated language. Return another language tag, if it does not fit.
+        Check if a message fits the estimated language.
+        Return another language tag, if it does not fit.
         """
         prompt_template = PromptTemplate.from_template(Prompts.LANGUAGE_CLASSIFICATION)
-        llm = Ollama(model=settings.LANGUAGE_CLASSIFICATIONH_MODEL, base_url=settings.OLLAMA_BASE_PATH)
+        llm = Ollama(
+            model=settings.LANGUAGE_CLASSIFICATIONH_MODEL,
+            base_url=settings.OLLAMA_BASE_PATH
+        )
         chain = prompt_template | llm | StrOutputParser()
         answer = chain.invoke({"message": message, "estimated_lang": estimated_lang})
         if answer.startswith(estimated_lang):
