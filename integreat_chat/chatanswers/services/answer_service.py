@@ -86,7 +86,7 @@ class AnswerService:
             "answer": answer,
             "sources": list({result['source'] for result in results}),
             "details": list({
-                "source": result['source'],
+                "context": result['text'],
                 "score": result['score']
             } for result in results),
         }
