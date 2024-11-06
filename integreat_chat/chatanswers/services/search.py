@@ -89,15 +89,16 @@ class SearchService:
         top_pages = []
         for source in sources:
             if source['source'] not in unique_sources:
-                unique_sources.append(source['source'])
+                unique_sources.append(source)
             if len(unique_sources) == 3:
                 break
         print(unique_sources)
         for source in unique_sources:
             top_pages.append(
                     {
-                        "source": source,
-                        "text": self.fetch_page_from_cms(source)
+                        "source": source["source"],
+                        "text": self.fetch_page_from_cms(source["source"]),
+                        "score": source["score"]
                     })
         return top_pages
 
