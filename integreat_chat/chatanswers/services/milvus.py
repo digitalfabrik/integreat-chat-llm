@@ -2,6 +2,7 @@
 Update Milvus vector database with new data
 """
 
+from django.conf import settings
 import urllib
 import json
 
@@ -26,7 +27,7 @@ class UpdateMilvus:
         """
         get data from Integreat cms
         """
-        pages_url = f"https://cms-test.integreat-app.de/api/v3/{self.region}/{self.language}/pages"
+        pages_url = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/pages"
         response = urllib.request.urlopen(pages_url)
         pages = json.loads(response.read())
         return pages

@@ -49,6 +49,8 @@ LOGGING = {
 
 ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 
+INTEGREAT_CMS_DOMAIN = "cms-test.integreat-app.de"
+
 # Configuration Variables for answer service
 QUESTION_CLASSIFICATION_MODEL = "llama3.2:3b"
 
@@ -57,13 +59,15 @@ LANGUAGE_CLASSIFICATIONH_MODEL = "llama3.1:70b"
 TRANSLATION_MODEL = "llama3.1:8b"
 
 RAG_DISTANCE_THRESHOLD = 1.3
-RAG_MAX_DOCUMENTS = 3
+RAG_MAX_PAGES = 3
 RAG_MODEL = "llama3.1:8b"
 RAG_PROMPT = Client().pull_prompt("rlm/rag-prompt")
 RAG_RELEVANCE_CHECK = True
 
-SEARCH_MAX_DOCUMENTS = 10
+# SEARCH_MAX_DOCUMENTS - number of documents retrieved from the VDB
+SEARCH_MAX_DOCUMENTS = 15
 SEARCH_DISTANCE_THRESHOLD = 1.5
+SEARCH_MAX_PAGES = 10
 
 MODEL_EMBEDDINGS = "all-MiniLM-L6-v2"
 VDB_HOST = "127.0.0.1"

@@ -40,8 +40,11 @@ def search_documents(request):
             search_term = language_service.opportunistic_translate(
                 data["language"], data["message"]
             )
+
             result = {
-                "related_documents": search_service.search_documents(search_term),
+                "related_documents": search_service.deduplicate_pages(
+                    search_service.search_documents(search_term)
+                ),
                 "search_term": search_term,
                 "status": "success"
             }

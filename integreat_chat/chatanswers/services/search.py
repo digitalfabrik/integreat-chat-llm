@@ -78,21 +78,22 @@ class SearchService:
             consistency_level="Strong",
             output_fields=(["source", "text"] if include_text else ["source"])
         )[0]
-        sources = self.doc_details(results, include_text)
-        return self.retrieve_unique_pages(sources)
+        return self.doc_details(results, include_text)
 
-    def retrieve_unique_pages(self, sources):
+    def deduplicate_pages(self, sources, max_pages=settings.SEARCH_MAX_PAGES):
         """
-        Get 3 unique pages from the sources retrieved from the retriever
+        Get N unique pages from the sources retrieved from the retriever
         """
         unique_sources = []
-        top_pages = []
         for source in sources:
             if source['source'] not in unique_sources:
                 unique_sources.append(source)
-            if len(unique_sources) == 3:
+            if len(unique_sources) == max_pages:
                 break
-        print(unique_sources)
+        return unique_sources
+
+    def retrieve_pages(self, sources):
+        top_pages = []
         for source in unique_sources:
             top_pages.append(
                     {
@@ -102,11 +103,14 @@ class SearchService:
                     })
         return top_pages
 
+    def retrieve_unique_pages(self, sources, max_pages):
+        return self.retrieve_pages(self.deduplicate_pages(sources, max_pages))
+
     def fetch_page_from_cms(self, page_url):
         """
         get data from Integreat cms using the children endpoint
         """
-        pages_url = f"https://cms-test.integreat-app.de/api/v3/{self.region}/{self.language}/children/?url={page_url}&depth=0"
+        pages_url = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/children/?url={page_url}&depth=0"
         encoded_url = urllib.parse.quote(pages_url, safe=':/=?&')
         print(f"URL - {encoded_url}\n")
         response = urllib.request.urlopen(encoded_url)
