@@ -55,7 +55,6 @@ class AnswerService:
             question,
             include_text=True
         )
-        
         results = search.retrieve_unique_pages(results, settings.RAG_MAX_PAGES)
 
         LOGGER.debug("Number of retrieved documents: %i", len(results))

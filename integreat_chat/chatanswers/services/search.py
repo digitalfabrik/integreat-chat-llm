@@ -86,7 +86,7 @@ class SearchService:
         """
         unique_sources = []
         for source in sources:
-            if source['source'] not in unique_sources:
+            if source['source'] not in [source['source'] for source in unique_sources]:
                 unique_sources.append(source)
             if len(unique_sources) == max_pages:
                 break
@@ -94,7 +94,7 @@ class SearchService:
 
     def retrieve_pages(self, sources):
         top_pages = []
-        for source in unique_sources:
+        for source in sources:
             top_pages.append(
                     {
                         "source": source["source"],
