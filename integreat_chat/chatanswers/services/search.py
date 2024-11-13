@@ -8,7 +8,9 @@ from pymilvus import (
 )
 
 from django.conf import settings
-
+import urllib.request
+import urllib.parse
+import json
 
 class SearchService:
     """
@@ -16,6 +18,7 @@ class SearchService:
     """
     def __init__(self, region, language):
         self.language = language
+        self.region = region
         self.vdb_host = settings.VDB_HOST
         self.vdb_port = settings.VDB_PORT
         self.vdb_collection_name = f"collection_ig_{region}_{language}"
@@ -38,6 +41,7 @@ class SearchService:
                     "source": source.entity.get('source'),
                     "score": source.distance
                 })
+        sources = sorted(sources, key=lambda x: x["score"])
         return sources
 
     def get_embeddings(self, question):
@@ -75,3 +79,43 @@ class SearchService:
             output_fields=(["source", "text"] if include_text else ["source"])
         )[0]
         return self.doc_details(results, include_text)
+
+    def deduplicate_pages(self, sources, max_pages=settings.SEARCH_MAX_PAGES):
+        """
+        Get N unique pages from the sources retrieved from the retriever
+        """
+        unique_sources = []
+        for source in sources:
+            if source['source'] not in [source['source'] for source in unique_sources]:
+                unique_sources.append(source)
+            if len(unique_sources) == max_pages:
+                break
+        return unique_sources
+
+    def retrieve_pages(self, sources):
+        top_pages = []
+        for source in sources:
+            top_pages.append(
+                    {
+                        "source": source["source"],
+                        "text": self.fetch_page_from_cms(source["source"]),
+                        "score": source["score"]
+                    })
+        return top_pages
+
+    def retrieve_unique_pages(self, sources, max_pages):
+        return self.retrieve_pages(self.deduplicate_pages(sources, max_pages))
+
+    def fetch_page_from_cms(self, page_url):
+        """
+        get data from Integreat cms using the children endpoint
+        """
+        pages_url = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/children/?url={page_url}&depth=0"
+        encoded_url = urllib.parse.quote(pages_url, safe=':/=?&')
+        print(f"URL - {encoded_url}\n")
+        response = urllib.request.urlopen(encoded_url)
+        page = json.loads(response.read())[0]
+        if page["excerpt"]:
+            return page["excerpt"]
+        else:
+            return ""

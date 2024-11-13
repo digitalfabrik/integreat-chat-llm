@@ -53,9 +53,9 @@ class AnswerService:
         search = SearchService(self.region, self.language)
         results = search.search_documents(
             question,
-            limit_results=settings.RAG_MAX_DOCUMENTS,
             include_text=True
         )
+        results = search.retrieve_unique_pages(results, settings.RAG_MAX_PAGES)
 
         LOGGER.debug("Number of retrieved documents: %i", len(results))
         if settings.RAG_RELEVANCE_CHECK:
@@ -86,7 +86,7 @@ class AnswerService:
             "answer": answer,
             "sources": list({result['source'] for result in results}),
             "details": list({
-                "source": result['source'],
+                "context": result['text'],
                 "score": result['score']
             } for result in results),
         }
