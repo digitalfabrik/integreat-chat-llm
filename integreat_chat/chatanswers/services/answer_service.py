@@ -84,11 +84,11 @@ class AnswerService:
         answer = rag_chain.invoke(question)
         return {
             "answer": answer,
-            "sources": list({result['source'] for result in results}),
-            "details": list({
+            "sources": [result['source'] for result in results],
+            "details": [{
                 "context": result['text'],
                 "score": result['score']
-            } for result in results),
+            } for result in results],
         }
 
 
