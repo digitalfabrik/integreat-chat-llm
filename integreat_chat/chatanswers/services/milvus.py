@@ -2,13 +2,18 @@
 Update Milvus vector database with new data
 """
 
-from django.conf import settings
-import urllib
 import json
+import hashlib
+import logging
+import urllib
 
+from django.conf import settings
 from langchain_text_splitters import HTMLHeaderTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Milvus
+
+
+LOGGER = logging.getLogger('django')
 
 class UpdateMilvus:
     """
@@ -27,7 +32,9 @@ class UpdateMilvus:
         """
         get data from Integreat cms
         """
-        pages_url = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/pages"
+        pages_url = (
+            f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/pages"
+        )
         response = urllib.request.urlopen(pages_url)
         pages = json.loads(response.read())
         return pages
@@ -39,11 +46,11 @@ class UpdateMilvus:
         if page["content"] == "":
             return [], []
         headers_to_split_on = [
-            ("h1", "Header 2"),
+            ("h1", "headline"),
+            ("h2", "headline"),
         ]
         html_splitter = HTMLHeaderTextSplitter(
             headers_to_split_on=headers_to_split_on,
-            return_each_element=True
         )
         documents = html_splitter.split_text(page['content'])
         texts = []
@@ -52,6 +59,25 @@ class UpdateMilvus:
             texts.append(doc.page_content)
             paths.append({"source": page['path']})
         return texts, paths
+
+    def deduplicate_documents(self, texts, paths):
+        """
+        Guarantees that each text chunk is unique.
+        """
+        hashes = []
+        result_texts = []
+        result_paths = []
+        num_dedups = 0
+        for document in zip(texts, paths):
+            text, path = document
+            text_hash = hashlib.md5(text.encode(encoding="utf-8")).digest()
+            if text_hash in hashes:
+                num_dedups += 1
+                continue
+            hashes.append(text_hash)
+            result_texts.append(text)
+            result_paths.append(path)
+        return result_texts, result_paths, num_dedups
 
     def create_embeddings(self, texts, paths):
         """

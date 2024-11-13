@@ -114,7 +114,9 @@ def update_vdb(request):
     Extract an answer for a user query from Integreat content. Expects a JSON body with message
     and language attributes
     """
-    if request.method in ('POST') and request.META.get('CONTENT_TYPE').lower() == 'application/json':
+    if (request.method in ('POST') and
+        request.META.get('CONTENT_TYPE').lower() == 'application/json'
+    ):
         data = json.loads(request.body)
         region = data["region"]
         language = data["language"]
@@ -126,5 +128,14 @@ def update_vdb(request):
             add_texts, add_paths = update_milvus.split_page(page)
             texts = texts + add_texts
             paths = paths + add_paths
+        texts, paths, num_dedups = update_milvus.deduplicate_documents(texts, paths)
         update_milvus.create_embeddings(texts, paths)
-    return JsonResponse({"status": "collection updated"})
+        return JsonResponse({
+            "status": "collection updated",
+            "num_pages": len(pages),
+            "num_documents": len(texts),
+            "num_deduplicated_documents": num_dedups
+        })
+    return JsonResponse({
+        "status": "malformed request",
+    })
