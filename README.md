@@ -1,3 +1,7 @@
+# About
+
+RAG/LLM supported online migration counseling service & improved Integreat search engine. It integrates as a chat service into the [Integreat App](https://github.com/digitalfabrik/integreat-app) and presents requests in a Zammad to counselors. The solution aims to be privacy friendly by not using any third party LLM services.
+
 # Start Project
 1. Install a virtual environment and activate it
    ```
