@@ -18,3 +18,21 @@ RAG/LLM supported online migration counseling service & improved Integreat searc
    python3 manage.py migrate
    python3 manage.py runserver
    ```
+
+# Configuration
+
+## Back End
+
+* Deploy as normal Django application. No database is needed.
+
+## Zammad Integration
+
+To integrate Zammad, the following configuration has to be set:
+
+* Webhook to https://integreat-cms.example.com/api/v3/webhook/zammad/?token=$REGION_TOKEN
+* Trigger for webhook:
+  * Conditions: `Action is updated`, `Subject contains not "automatically generated message"`
+  * Execute: webhook configured above
+* Auto response for new tickets in each language, exmple is `EN`
+  * Conditions: `State is new`, `Action is updated`, `Subject contains not "automatically generated message"`, `Title contains [EN]`
+  * Execute: `Email`, `visibility public`, `Recipient Customer`, `Subject "automatically generated message"`, add a message fitting the needs
