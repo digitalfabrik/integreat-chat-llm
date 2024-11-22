@@ -50,3 +50,7 @@ Retrieved document: {document}
 
 Message: {message}
 """
+
+    OPTIMIZE_MESSAGE = """Please summarize the following text into one terse sentence or question. Only answer with the summary, no text around it.
+    
+Text: {message}"""
