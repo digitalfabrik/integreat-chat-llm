@@ -7,6 +7,7 @@ import logging
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 from integreat_chat.chatanswers.services.answer_service import AnswerService
 from integreat_chat.chatanswers.services.language import LanguageService
@@ -102,8 +103,11 @@ def extract_answer(request):
                 message = data["message"]
             answer_service = AnswerService(data["region"], data["language"])
             if answer_service.needs_answer(data["message"]):
+                if settings.RAG_QUERY_OPTIMIZATION:
+                    message = answer_service.optimize_query_for_retrieval(message)
                 result = answer_service.extract_answer(message)
                 result["status"] = "success"
+                result["message"] = message
             else:
                 result["status"] = "not a question"
     return JsonResponse(result)
