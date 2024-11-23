@@ -112,7 +112,6 @@ class SearchService:
         """
         pages_url = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/children/?url={page_url}&depth=0"
         encoded_url = urllib.parse.quote(pages_url, safe=':/=?&')
-        print(f"URL - {encoded_url}\n")
         response = urllib.request.urlopen(encoded_url)
         page = json.loads(response.read())[0]
         if page["excerpt"]:
