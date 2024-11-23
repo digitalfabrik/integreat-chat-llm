@@ -37,6 +37,8 @@ dependencies = [
   "langsmith",
   "langchain-huggingface",
   "lxml",
+  "transformers",
+  "torch",
 ]
 
 
