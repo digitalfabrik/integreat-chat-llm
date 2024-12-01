@@ -39,6 +39,7 @@ LANGUAGE_MAP = {
     'ka': 'kat_Geor',  # Georgian
     'kk': 'kaz_Cyrl',  # Kazakh
     'km': 'khm_Khmr',  # Khmer
+    'kmr': 'kmr_Latn', # Kurmanji
     'kn': 'kan_Knda',  # Kannada
     'ko': 'kor_Hang',  # Korean
     'ky': 'kir_Cyrl',  # Kyrgyz
