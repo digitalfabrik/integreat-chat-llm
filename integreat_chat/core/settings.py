@@ -65,6 +65,7 @@ RAG_PROMPT = Client().pull_prompt("rlm/rag-prompt")
 RAG_RELEVANCE_CHECK = True
 RAG_QUERY_OPTIMIZATION = True
 RAG_QUERY_OPTIMIZATION_MODEL = "llama3.1:70b"
+RAG_CONTEXT_MAX_LENGTH = 8000
 
 # SEARCH_MAX_DOCUMENTS - number of documents retrieved from the VDB
 SEARCH_MAX_DOCUMENTS = 15

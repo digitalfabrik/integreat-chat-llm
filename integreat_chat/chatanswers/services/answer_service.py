@@ -74,7 +74,7 @@ class AnswerService:
 
         context = RunnableLambda(lambda _: "\n".join(
             [result['text'] for result in results]
-        ))
+        )[:settings.RAG_CONTEXT_MAX_LENGTH])
         if not results:
             language_service = LanguageService()
             return {
