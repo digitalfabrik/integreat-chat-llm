@@ -1,6 +1,11 @@
 """
 A service to search for documents
 """
+
+import urllib.request
+import urllib.parse
+import json
+
 from sentence_transformers import SentenceTransformer
 from pymilvus import (
     connections,
@@ -8,15 +13,12 @@ from pymilvus import (
 )
 
 from django.conf import settings
-import urllib.request
-import urllib.parse
-import json
 
 class SearchService:
     """
     Service class that enables searching for Integreat content
     """
-    def __init__(self, region, language):
+    def __init__(self, region: str, language: str) -> None:
         self.language = language
         self.region = region
         self.vdb_host = settings.VDB_HOST
@@ -24,7 +26,7 @@ class SearchService:
         self.vdb_collection_name = f"collection_ig_{region}_{language}"
         self.embedding_model = 'sentence-transformers/all-MiniLM-L6-v2'
 
-    def doc_details(self, results, include_text=False):
+    def doc_details(self, results: dict, include_text: bool = False) -> list:
         """
         convert result into sources dict
         """
@@ -44,14 +46,14 @@ class SearchService:
         sources = sorted(sources, key=lambda x: x["score"])
         return sources
 
-    def get_embeddings(self, question):
+    def get_embeddings(self, question: str):
         """
         Get embedding for question string
         """
         embedding_model = SentenceTransformer(self.embedding_model)
         return embedding_model.encode([question])
 
-    def load_collection(self):
+    def load_collection(self) -> Collection:
         """
         Connect to Milvus and load collection
         """
@@ -62,10 +64,10 @@ class SearchService:
 
     def search_documents(
             self,
-            question,
-            limit_results=settings.SEARCH_MAX_DOCUMENTS,
-            include_text=False
-        ):
+            question: str,
+            limit_results: int = settings.SEARCH_MAX_DOCUMENTS,
+            include_text: bool = False
+        ) -> list:
         """
         Create summary answer for question
         """
@@ -80,7 +82,7 @@ class SearchService:
         )[0]
         return self.doc_details(results, include_text)
 
-    def deduplicate_pages(self, sources, max_pages=settings.SEARCH_MAX_PAGES):
+    def deduplicate_pages(self, sources: list[dict], max_pages: int = settings.SEARCH_MAX_PAGES):
         """
         Get N unique pages from the sources retrieved from the retriever
         """
@@ -92,7 +94,10 @@ class SearchService:
                 break
         return unique_sources
 
-    def retrieve_pages(self, sources):
+    def retrieve_pages(self, sources: list[dict]) -> list[dict]:
+        """
+        Retrieve page content from Integreat CMS
+        """
         top_pages = []
         for source in sources:
             top_pages.append(
@@ -103,14 +108,17 @@ class SearchService:
                     })
         return top_pages
 
-    def retrieve_unique_pages(self, sources, max_pages):
+    def retrieve_unique_pages(self, sources: list, max_pages: int) -> list:
         return self.retrieve_pages(self.deduplicate_pages(sources, max_pages))
 
-    def fetch_page_from_cms(self, page_url):
+    def fetch_page_from_cms(self, page_url: str) -> str:
         """
         get data from Integreat cms using the children endpoint
         """
-        pages_url = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/{self.language}/children/?url={page_url}&depth=0"
+        pages_url = (
+            f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/"
+            f"{self.language}/children/?url={page_url}&depth=0"
+        )
         encoded_url = urllib.parse.quote(pages_url, safe=':/=?&')
         response = urllib.request.urlopen(encoded_url)
         page = json.loads(response.read())[0]
