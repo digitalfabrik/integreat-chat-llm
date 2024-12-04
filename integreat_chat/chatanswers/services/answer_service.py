@@ -7,6 +7,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 from langchain_core.prompts import PromptTemplate
+# pylint: disable=no-name-in-module
 from langchain_community.llms import Ollama
 
 from django.conf import settings
@@ -77,9 +78,13 @@ class AnswerService:
         search = SearchService(self.region, self.language)
         results = search.search_documents(
             question,
-            include_text=True
+            include_text=True,
         )
-        results = search.retrieve_unique_pages(results, settings.RAG_MAX_PAGES)
+        results = search.deduplicate_pages(
+            results,
+            settings.RAG_MAX_PAGES,
+            max_score=settings.RAG_DISTANCE_THRESHOLD
+        )
 
         LOGGER.debug("Number of retrieved documents: %i", len(results))
         if settings.RAG_RELEVANCE_CHECK:

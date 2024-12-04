@@ -58,7 +58,7 @@ LANGUAGE_CLASSIFICATIONH_MODEL = "llama3.1:70b"
 
 TRANSLATION_MODEL = "facebook/nllb-200-3.3B"
 
-RAG_DISTANCE_THRESHOLD = 1.3
+RAG_DISTANCE_THRESHOLD = 20
 RAG_MAX_PAGES = 3
 RAG_MODEL = "llama3.1:8b"
 RAG_PROMPT = Client().pull_prompt("rlm/rag-prompt")
@@ -69,14 +69,17 @@ RAG_CONTEXT_MAX_LENGTH = 8000
 
 # SEARCH_MAX_DOCUMENTS - number of documents retrieved from the VDB
 SEARCH_MAX_DOCUMENTS = 15
-SEARCH_DISTANCE_THRESHOLD = 1.5
+SEARCH_DISTANCE_THRESHOLD = 30
 SEARCH_MAX_PAGES = 10
+SEARCH_EMBEDDING_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+SEARCH_EMBEDDING_MODEL = HuggingFaceEmbeddings(
+    model_name=SEARCH_EMBEDDING_MODEL_NAME, show_progress=False
+)
+SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES = ["ar", "en", "de", "fa", "uk"]
+SEARCH_FALLBACK_LANGUAGE = "en"
 
-MODEL_EMBEDDINGS = "all-MiniLM-L6-v2"
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
-
-EMBEDDINGS = HuggingFaceEmbeddings(model_name=MODEL_EMBEDDINGS, show_progress=False)
 
 OLLAMA_BASE_PATH="http://10.137.0.1:11434"
 
