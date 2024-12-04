@@ -14,7 +14,7 @@ from integreat_chat.chatanswers.services.language import LanguageService
 from integreat_chat.chatanswers.services.search import SearchService
 
 from .services.milvus import UpdateMilvus
-
+from .utils import translate_source_path
 
 LOGGER = logging.getLogger('django')
 
@@ -39,12 +39,15 @@ def search_documents(request):
             search_service = SearchService(data["region"], data["language"])
             language_service = LanguageService()
             search_term = language_service.opportunistic_translate(
-                data["language"], data["message"]
+                search_service.language, data["message"]
             )
 
             result = {
                 "related_documents": search_service.deduplicate_pages(
-                    search_service.search_documents(search_term)
+                    search_service.search_documents(
+                        search_term,
+                        include_text = "include_text" in data and data["include_text"]
+                    )
                 ),
                 "search_term": search_term,
                 "status": "success"
@@ -93,19 +96,34 @@ def extract_answer(request):
             result = {"status":"error"}
         else:
             language_service = LanguageService()
-            if language := language_service.classify_language(data["language"], data["message"]) != data["language"]:
+            if data["language"] not in settings.RAG_SUPPORTED_LANGUAGES:
+                rag_language = settings.RAG_FALLBACK_LANGUAGE
+            else:
+                rag_language = data["language"]
+            if message_language := language_service.classify_language(data["language"], data["message"]) != data["language"]:
                 message = language_service.translate_message(
-                    language,
-                    data["language"],
+                    message_language,
+                    rag_language,
                     data["message"]
                 )
             else:
                 message = data["message"]
-            answer_service = AnswerService(data["region"], data["language"])
+
+            answer_service = AnswerService(data["region"], rag_language)
             if answer_service.needs_answer(data["message"]):
                 if settings.RAG_QUERY_OPTIMIZATION:
                     message = answer_service.optimize_query_for_retrieval(message)
                 result = answer_service.extract_answer(message)
+                if rag_language != data["language"]:
+                    result["answer"] = language_service.translate_message(
+                        rag_language,
+                        data["language"],
+                        result["answer"]
+                    )
+                    old_sources = result["sources"]
+                    result["sources"] = []
+                    for source in old_sources:
+                        result["sources"].append(translate_source_path(source, data["language"]))
                 result["status"] = "success"
                 result["message"] = message
             else:
@@ -125,6 +143,10 @@ def update_vdb(request):
         region = data["region"]
         language = data["language"]
         update_milvus = UpdateMilvus(region, language)
+        if not update_milvus.check_language_support(language):
+            return JsonResponse({
+                "status": "not supported languge",
+            })
         pages = update_milvus.fetch_pages_from_cms()
         texts = []
         paths = []

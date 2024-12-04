@@ -2,11 +2,10 @@
 A service to search for documents
 """
 
-import urllib.request
-import urllib.parse
 import json
+from urllib.request import urlopen
+from urllib.parse import unquote, quote
 
-from sentence_transformers import SentenceTransformer
 from pymilvus import (
     connections,
     Collection,
@@ -19,12 +18,20 @@ class SearchService:
     Service class that enables searching for Integreat content
     """
     def __init__(self, region: str, language: str) -> None:
-        self.language = language
+        self.language = self.choose_language(language)
+        self.original_language = language
         self.region = region
         self.vdb_host = settings.VDB_HOST
         self.vdb_port = settings.VDB_PORT
-        self.vdb_collection_name = f"collection_ig_{region}_{language}"
-        self.embedding_model = 'sentence-transformers/all-MiniLM-L6-v2'
+        self.vdb_collection_name = f"collection_ig_{region}_{self.language}"
+
+    def choose_language(self, language: str) -> str:
+        """
+        Check if the chosen languge is supported. If not, use the fallback language.
+        """
+        if language in settings.SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES:
+            return language
+        return settings.SEARCH_FALLBACK_LANGUAGE
 
     def doc_details(self, results: dict, include_text: bool = False) -> list:
         """
@@ -32,15 +39,25 @@ class SearchService:
         """
         sources = []
         for source in results:
+            cms_page = self.fetch_page_from_cms(source.entity.get('source'), self.language)
+            source_url = (source.entity.get('source') if
+                self.language == self.original_language else
+                unquote(cms_page["available_languages"][self.original_language]["path"])
+            )
             if include_text:
+                text = (cms_page["excerpt"]
+                    if self.language == self.original_language else
+                    self.fetch_page_from_cms(source_url, self.original_language)["excerpt"]
+                )
                 sources.append({
-                    "source": source.entity.get('source'),
-                    "text": source.entity.get('text'),
+                    "source": source_url,
+                    "text": text,
+                    "found_chunk": source.entity.get('text'),
                     "score": source.distance
                 })
             else:
                 sources.append({
-                    "source": source.entity.get('source'),
+                    "source": source_url,
                     "score": source.distance
                 })
         sources = sorted(sources, key=lambda x: x["score"])
@@ -50,8 +67,7 @@ class SearchService:
         """
         Get embedding for question string
         """
-        embedding_model = SentenceTransformer(self.embedding_model)
-        return embedding_model.encode([question])
+        return settings.SEARCH_EMBEDDING_MODEL.embed_query(question)
 
     def load_collection(self) -> Collection:
         """
@@ -72,7 +88,7 @@ class SearchService:
         Create summary answer for question
         """
         results = self.load_collection().search(
-            data=self.get_embeddings(question),
+            data=[self.get_embeddings(question)],
             anns_field="vector",
             param={"metric_type": "L2", "params": {"nprobe": 10}},
             limit=limit_results,
@@ -82,47 +98,31 @@ class SearchService:
         )[0]
         return self.doc_details(results, include_text)
 
-    def deduplicate_pages(self, sources: list[dict], max_pages: int = settings.SEARCH_MAX_PAGES):
+    def deduplicate_pages(
+            self,
+            sources: list[dict],
+            max_pages: int = settings.SEARCH_MAX_PAGES,
+            max_score: int = settings.SEARCH_DISTANCE_THRESHOLD
+        ):
         """
         Get N unique pages from the sources retrieved from the retriever
         """
         unique_sources = []
         for source in sources:
-            if source['source'] not in [source['source'] for source in unique_sources]:
+            if (source['source'] not in [source['source'] for source in unique_sources] and source["score"] <= max_score):
                 unique_sources.append(source)
             if len(unique_sources) == max_pages:
                 break
         return unique_sources
 
-    def retrieve_pages(self, sources: list[dict]) -> list[dict]:
-        """
-        Retrieve page content from Integreat CMS
-        """
-        top_pages = []
-        for source in sources:
-            top_pages.append(
-                    {
-                        "source": source["source"],
-                        "text": self.fetch_page_from_cms(source["source"]),
-                        "score": source["score"]
-                    })
-        return top_pages
-
-    def retrieve_unique_pages(self, sources: list, max_pages: int) -> list:
-        return self.retrieve_pages(self.deduplicate_pages(sources, max_pages))
-
-    def fetch_page_from_cms(self, page_url: str) -> str:
+    def fetch_page_from_cms(self, page_url: str, language: str) -> dict:
         """
         get data from Integreat cms using the children endpoint
         """
         pages_url = (
             f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{self.region}/"
-            f"{self.language}/children/?url={page_url}&depth=0"
+            f"{language}/children/?url={page_url}&depth=0"
         )
-        encoded_url = urllib.parse.quote(pages_url, safe=':/=?&')
-        response = urllib.request.urlopen(encoded_url)
-        page = json.loads(response.read())[0]
-        if page["excerpt"]:
-            return page["excerpt"]
-        else:
-            return ""
+        encoded_url = quote(pages_url, safe=':/=?&')
+        response = urlopen(encoded_url)
+        return json.loads(response.read())[0]

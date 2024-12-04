@@ -25,7 +25,6 @@ class UpdateMilvus:
         self.language = language
         self.milvus_host = "127.0.0.1"
         self.milvus_port = "19530"
-        self.embedding_model = "all-MiniLM-L6-v2"
         self.milvus_collection = f"collection_ig_{region}_{language}"
 
     def fetch_pages_from_cms(self):
@@ -38,6 +37,12 @@ class UpdateMilvus:
         response = urllib.request.urlopen(pages_url)
         pages = json.loads(response.read())
         return pages
+
+    def check_language_support(self, language: str):
+        """
+        Check if the language is supported for indexing
+        """
+        return language in settings.SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES
 
     def split_page(self, page):
         """
@@ -83,11 +88,9 @@ class UpdateMilvus:
         """
         create embeddings and save to database
         """
-        embeddings = HuggingFaceEmbeddings(model_name=self.embedding_model, show_progress=False)
-
         Milvus.from_texts(
             texts,
-            embeddings,
+            settings.SEARCH_EMBEDDING_MODEL,
             metadatas=paths,
             collection_name=self.milvus_collection,
             connection_args={"host": self.milvus_host, "port": self.milvus_port},
