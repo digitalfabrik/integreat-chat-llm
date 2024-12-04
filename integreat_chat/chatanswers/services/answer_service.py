@@ -23,29 +23,42 @@ class AnswerService:
     """
     Service for providing summary answers to question-like messages.
     """
-    def __init__(self, region, language):
+    def __init__(self, region: str, language: str) -> None:
+        """
+        param region: Integreat CMS region slug
+        param language: Integreat CMS language slug
+        """
         self.language = language
         self.region = region
         self.llm_model_name = settings.RAG_MODEL
         self.llm = self.load_llm(self.llm_model_name)
 
-    def load_llm(self, llm_model_name):
+    def load_llm(self, llm_model_name: str) -> Ollama:
         """
-        Prepare LLM
+        Prepare Ollama LLM
+
+        param llm_model_name: name of an LLM model that can be pulled from Ollama
+        return: Ollama model
         """
         return Ollama(model=llm_model_name, base_url=settings.OLLAMA_BASE_PATH)
 
-    def optimize_query_for_retrieval(self, message):
+    def optimize_query_for_retrieval(self, message: str) -> str:
         """
         Optimize the user query for document retrieval
+
+        param message: a long or convoluted message that is unsuitable for document retrieval.
+        return: a more concise summary of the original message
         """
         prompt = PromptTemplate.from_template(Prompts.OPTIMIZE_MESSAGE)
         chain = prompt | self.load_llm(settings.RAG_QUERY_OPTIMIZATION_MODEL) | StrOutputParser()
         return chain.invoke({"message": message})
 
-    def needs_answer(self, message):
+    def needs_answer(self, message: str) -> bool:
         """
         Check if a chat message is a question
+
+        param message: a user message
+        return: indication if the message needs an answer
         """
         prompt = PromptTemplate.from_template(Prompts.CHECK_QUESTION)
         chain = prompt | self.llm | StrOutputParser()
@@ -54,9 +67,12 @@ class AnswerService:
             return True
         return False
 
-    def extract_answer(self, question):
+    def extract_answer(self, question: str) -> dict:
         """
         Create summary answer for question
+
+        param question: a question or statement of need
+        return: a dict containing a response and sources
         """
         search = SearchService(self.region, self.language)
         results = search.search_documents(
@@ -100,9 +116,13 @@ class AnswerService:
         }
 
 
-    def check_document_relevance(self, question, content):
+    def check_document_relevance(self, question: str, content: str) -> bool:
         """
-        Check if the retrieved documents are relevant
+        Check if the retrieved documents are relevant for answering the question
+
+        param question: a message/question from a user
+        param content: a page content that could be relevant for answering the question
+        return: bool that indicates if the page is relevant for the question
         """
         grade_prompt = PromptTemplate.from_template(Prompts.RELEVANCE_CHECK)
         chain = grade_prompt | self.llm | StrOutputParser()
