@@ -16,8 +16,6 @@ Use three sentences maximum and keep the answer concise. Answer the question in 
 Question: {question}
 
 Context: {context}
-
-Answer:
 """
 
     LANGUAGE_CLASSIFICATION = """
