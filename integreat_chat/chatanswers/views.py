@@ -120,10 +120,7 @@ def extract_answer(request):
             if answer_service.needs_answer(data["message"]):
                 if settings.RAG_QUERY_OPTIMIZATION:
                     qtransform = QueryTransformer(message)
-                    message = qtransform.transform_query(message)
-                    message = answer_service.optimize_query_for_retrieval(message)[
-                        "modified_query"
-                    ]
+                    message = qtransform.transform_query()["modified_query"]
                 result = answer_service.extract_answer(message)
                 if rag_language != data["language"]:
                     result["answer"] = language_service.translate_message(
