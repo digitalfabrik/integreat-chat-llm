@@ -3,6 +3,7 @@ Service to transform/optimize input queries
 """
 
 import logging
+import re
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
