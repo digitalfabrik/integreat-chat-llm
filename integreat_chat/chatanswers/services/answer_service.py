@@ -106,11 +106,12 @@ class AnswerService:
             }
         rag_chain = (
                 {"language": self.language, "context": context, "question": RunnablePassthrough()}
-                | settings.RAG_PROMPT
+                | PromptTemplate.from_template(Prompts.RAG)
                 | self.llm
                 | StrOutputParser()
         )
         answer = rag_chain.invoke(question)
+        LOGGER.debug("Question: %s\nAnswer: %s", question, answer)
         return {
             "answer": answer,
             "sources": [result['source'] for result in results],
