@@ -43,17 +43,6 @@ class AnswerService:
         """
         return Ollama(model=llm_model_name, base_url=settings.OLLAMA_BASE_PATH)
 
-    def optimize_query_for_retrieval(self, message: str) -> str:
-        """
-        Optimize the user query for document retrieval
-
-        param message: a long or convoluted message that is unsuitable for document retrieval.
-        return: a more concise summary of the original message
-        """
-        prompt = PromptTemplate.from_template(Prompts.OPTIMIZE_MESSAGE)
-        chain = prompt | self.load_llm(settings.RAG_QUERY_OPTIMIZATION_MODEL) | StrOutputParser()
-        return chain.invoke({"message": message})
-
     def needs_answer(self, message: str) -> bool:
         """
         Check if a chat message is a question
