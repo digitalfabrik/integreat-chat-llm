@@ -93,13 +93,9 @@ class AnswerService:
                     Messages.NO_ANSWER
                 )
             }
-        rag_chain = (
-                {"language": self.language, "context": context, "question": RunnablePassthrough()}
-                | PromptTemplate.from_template(Prompts.RAG)
-                | self.llm
-                | StrOutputParser()
-        )
-        answer = rag_chain.invoke(question)
+        prompt = PromptTemplate.from_template(Prompts.RAG)
+        chain = prompt | self.llm | StrOutputParser()
+        answer = chain.invoke({"language": self.language, "context": context, "question": question})
         LOGGER.debug("Question: %s\nAnswer: %s", question, answer)
         return {
             "answer": answer,
