@@ -1,13 +1,15 @@
+"""
+Integreat CMS helper functions
+"""
 import json
 from urllib.request import urlopen
 from urllib.parse import quote
 
 from django.conf import settings
 
-
-def translate_source_path(path: str, wanted_language: str) -> str:
+def get_page(path: str) -> dict:
     """
-    Get the page path for a specified language
+    get page object for RAG source
     """
     region = path.split("/")[1]
     cur_language = path.split("/")[2]
@@ -16,5 +18,5 @@ def translate_source_path(path: str, wanted_language: str) -> str:
         f"{cur_language}/children/?url={path}&depth=0"
     )
     encoded_url = quote(pages_url, safe=':/=?&')
-    response = urlopen(encoded_url)
-    return json.loads(response.read())[0]["available_languages"][wanted_language]["path"]
+    with urlopen(encoded_url) as response:
+        return json.loads(response.read())[0]
