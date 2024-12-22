@@ -7,7 +7,7 @@ from integreat_chat.translate.services.language import LanguageService
 class IntegreatRequest:
     """
     base request class. Classes inheriting this class have to implement
-    their own prepare() method which sets the supported languages by the
+    their own __init__() method which sets the supported languages by the
     used models and a fallback language.
     """
     def __init__(self, data):
