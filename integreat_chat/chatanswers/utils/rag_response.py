@@ -1,8 +1,6 @@
 """
 RAG response
 """
-from django.conf import settings
-
 from integreat_chat.search.utils.search_response import Document
 from integreat_chat.core.utils.integreat_request import IntegreatRequest
 
