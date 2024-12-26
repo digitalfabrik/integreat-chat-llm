@@ -2,16 +2,14 @@
 A service to detect languages and translate messages
 """
 
-from langchain_core.output_parsers import StrOutputParser
 # pylint: disable=no-name-in-module
-from langchain_community.llms import Ollama
 from transformers import pipeline
 
-from langchain.prompts import PromptTemplate
-
 from django.conf import settings
-from integreat_chat.chatanswers.static.prompts import Prompts
-from integreat_chat.translate.static.language_code_map import LANGUAGE_MAP
+from integreat_chat.chatanswers.services.litellm import LiteLLMClient
+
+from ..static.prompts import Prompts
+from ..static.language_code_map import LANGUAGE_MAP
 
 class LanguageService:
     """
@@ -21,19 +19,14 @@ class LanguageService:
         """
         
         """
+        self.llm_api = LiteLLMClient(Prompts.SYSTEM_PROMPT, settings.LANGUAGE_CLASSIFICATIONH_MODEL)
 
     def classify_language(self, estimated_lang, message):
         """
         Check if a message fits the estimated language.
         Return another language tag, if it does not fit.
         """
-        prompt_template = PromptTemplate.from_template(Prompts.LANGUAGE_CLASSIFICATION)
-        llm = Ollama(
-            model=settings.LANGUAGE_CLASSIFICATIONH_MODEL,
-            base_url=settings.OLLAMA_BASE_PATH
-        )
-        chain = prompt_template | llm | StrOutputParser()
-        answer = chain.invoke({"message": message, "estimated_lang": estimated_lang})
+        answer = self.llm_api.simple_prompt(Prompts.LANGUAGE_CLASSIFICATION.format(message))
         if answer.startswith(estimated_lang):
             return estimated_lang
         return answer.split("-")[0]

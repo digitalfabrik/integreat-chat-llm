@@ -10,9 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import configparser
+import os
+
 from pathlib import Path
 
 from langchain_huggingface import HuggingFaceEmbeddings
+
+config = configparser.ConfigParser()
+if os.path.isfile('/etc/integreat-chat.ini'):
+    config.read('/etc/integreat-chat.ini')
+else:
+    config.read(os.path.join(__file__, "../../integreat-chat.ini"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,7 +60,7 @@ ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 INTEGREAT_CMS_DOMAIN = "cms-test.integreat-app.de"
 
 # Configuration Variables for answer service
-QUESTION_CLASSIFICATION_MODEL = "llama3.2:3b"
+QUESTION_CLASSIFICATION_MODEL = "llama3.3"
 
 LANGUAGE_CLASSIFICATIONH_MODEL = "llama3.3"
 
@@ -81,7 +90,8 @@ SEARCH_FALLBACK_LANGUAGE = "en"
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
 
-OLLAMA_BASE_PATH="http://10.137.0.1:11434"
+LITELLM_SERVER=config['LiteLLM']['SERVER']
+LITELLM_API_KEY=config['LiteLLM']['API_KEY']
 
 # Application definition
 
