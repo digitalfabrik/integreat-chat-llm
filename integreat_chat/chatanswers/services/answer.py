@@ -3,11 +3,6 @@ Retrieving matching documents for question an create summary text
 """
 import logging
 
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import PromptTemplate
-# pylint: disable=no-name-in-module
-from langchain_community.llms import Ollama
-
 from django.conf import settings
 
 from integreat_chat.search.services.search import SearchService
@@ -18,6 +13,7 @@ from ..static.prompts import Prompts
 from ..static.messages import Messages
 from ..utils.rag_response import RagResponse
 from ..utils.rag_request import RagRequest
+from .litellm import LiteLLMClient
 
 LOGGER = logging.getLogger('django')
 
@@ -35,16 +31,7 @@ class AnswerService:
         self.language = rag_request.use_language
         self.region = rag_request.region
         self.llm_model_name = settings.RAG_MODEL
-        self.llm = self.load_llm(self.llm_model_name)
-
-    def load_llm(self, llm_model_name: str) -> Ollama:
-        """
-        Prepare Ollama LLM
-
-        param llm_model_name: name of an LLM model that can be pulled from Ollama
-        return: Ollama model
-        """
-        return Ollama(model=llm_model_name, base_url=settings.OLLAMA_BASE_PATH)
+        self.llm_api = LiteLLMClient(Prompts.RAG_SYSTEM_PROMPT, settings.RAG_MODEL)
 
     def needs_answer(self, message: str) -> bool:
         """
@@ -53,9 +40,7 @@ class AnswerService:
         param message: a user message
         return: indication if the message needs an answer
         """
-        prompt = PromptTemplate.from_template(Prompts.CHECK_QUESTION)
-        chain = prompt | self.llm | StrOutputParser()
-        answer = chain.invoke({"message": message})
+        answer = self.llm_api.simple_prompt(Prompts.CHECK_QUESTION.format(message))
         if answer.startswith("Yes"):
             return True
         return False
@@ -91,7 +76,6 @@ class AnswerService:
         """
         Create summary answer for question
 
-        param question: a question or statement of need
         return: a dict containing a response and sources
         """
         question = str(self.rag_request)
@@ -110,9 +94,7 @@ class AnswerService:
                 ),
                 documents
             )
-        prompt = PromptTemplate.from_template(Prompts.RAG)
-        chain = prompt | self.llm | StrOutputParser()
-        answer = chain.invoke({"language": self.language, "context": context, "question": question})
+        answer = self.llm_api.simple_prompt(Prompts.RAG.format(self.language, question, context))
         LOGGER.debug("Question: %s\nAnswer: %s", question, answer)
         return RagResponse(documents, self.rag_request, answer)
 
@@ -124,9 +106,7 @@ class AnswerService:
         param content: a page content that could be relevant for answering the question
         return: bool that indicates if the page is relevant for the question
         """
-        grade_prompt = PromptTemplate.from_template(Prompts.RELEVANCE_CHECK)
-        chain = grade_prompt | self.llm | StrOutputParser()
-
-        response = chain.invoke({"document": content, "question": question})
-        response = response.strip().lower()
+        response = (self.llm_api.simple_prompt(
+            Prompts.RELEVANCE_CHECK.format(question, content)).strip().lower()
+        )
         return response.startswith("yes")
