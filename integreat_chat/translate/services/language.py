@@ -2,6 +2,8 @@
 A service to detect languages and translate messages
 """
 
+import logging
+
 # pylint: disable=no-name-in-module
 from transformers import pipeline
 
@@ -10,6 +12,9 @@ from integreat_chat.chatanswers.services.litellm import LiteLLMClient
 
 from ..static.prompts import Prompts
 from ..static.language_code_map import LANGUAGE_MAP
+
+LOGGER = logging.getLogger("django")
+
 
 class LanguageService:
     """
@@ -26,7 +31,9 @@ class LanguageService:
         Check if a message fits the estimated language.
         Return another language tag, if it does not fit.
         """
+        LOGGER.debug("Detecting message language")
         answer = self.llm_api.simple_prompt(Prompts.LANGUAGE_CLASSIFICATION.format(message))
+        LOGGER.debug("Finished message language detection: %s", answer)
         if answer.startswith(estimated_lang):
             return estimated_lang
         return answer.split("-")[0]
@@ -35,9 +42,11 @@ class LanguageService:
         """
         Translate a message from source to target language
         """
+        LOGGER.debug("Starting translation from %s to %s", source_language, target_language)
         if source_language == target_language:
             return message
         pipe = pipeline("translation", model=settings.TRANSLATION_MODEL)
+        LOGGER.debug("Finished translation from %s to %s", source_language, target_language)
         return " ".join([
             result["translation_text"] for result in pipe(
                 self.split_text(message),

@@ -40,9 +40,12 @@ class AnswerService:
         param message: a user message
         return: indication if the message needs an answer
         """
+        LOGGER.debug("Checking if message requires response.")
         answer = self.llm_api.simple_prompt(Prompts.CHECK_QUESTION.format(message))
         if answer.startswith("Yes"):
+            LOGGER.debug("Message requires response.")
             return True
+        LOGGER.debug("Message does not require response.")
         return False
 
     def get_documents(self) -> list:
@@ -79,7 +82,9 @@ class AnswerService:
         return: a dict containing a response and sources
         """
         question = str(self.rag_request)
+        LOGGER.debug("Retrieving documents.")
         documents = self.get_documents()
+        LOGGER.debug("Retrieved documents.")
 
         context = "\n".join(
             [result.content for result in documents]
@@ -94,8 +99,9 @@ class AnswerService:
                 ),
                 documents
             )
+        LOGGER.debug("Generating answer.")
         answer = self.llm_api.simple_prompt(Prompts.RAG.format(self.language, question, context))
-        LOGGER.debug("Question: %s\nAnswer: %s", question, answer)
+        LOGGER.debug("Finished generating answer. Question: %s\nAnswer: %s", question, answer)
         return RagResponse(documents, self.rag_request, answer)
 
     def check_document_relevance(self, question: str, content: str) -> bool:

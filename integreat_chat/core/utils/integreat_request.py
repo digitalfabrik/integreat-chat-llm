@@ -1,8 +1,13 @@
 """
 base request class
 """
+import logging
+from django.utils.functional import cached_property
 
 from integreat_chat.translate.services.language import LanguageService
+
+LOGGER = logging.getLogger('django')
+
 
 class IntegreatRequest:
     """
@@ -13,7 +18,6 @@ class IntegreatRequest:
     def __init__(self, data):
         self.parse_arguments(data)
         self.language_service = LanguageService()
-        self.likely_message_language = self.detect_message_language()
         self.supported_languages = (
             None if not hasattr(self, "supported_languages") else self.supported_languages
         )
@@ -22,7 +26,6 @@ class IntegreatRequest:
         )
         if self.supported_languages is None or self.fallback_language is None:
             raise ValueError("supported_languages or fallback_language has not been set.")
-        self.translated_message = self.translate_message()
 
     def parse_arguments(self, data):
         """
@@ -34,7 +37,8 @@ class IntegreatRequest:
         self.gui_language = data["language"]
         self.region = data["region"]
 
-    def detect_message_language(self) -> str:
+    @cached_property
+    def likely_message_language(self) -> str:
         """
         Detect language and decide which language to use for RAG
         """
@@ -42,7 +46,8 @@ class IntegreatRequest:
             self.gui_language, self.original_message
         )
 
-    def translate_message(self) -> str:
+    @cached_property
+    def translated_message(self) -> str:
         """
         If necessary, translate message into GUI language
         """
