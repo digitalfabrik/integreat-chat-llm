@@ -126,7 +126,7 @@ class AnswerService:
         LOGGER.debug("Checking if user requests human intervention")
         response = self.llm_api.simple_prompt(Prompts.HUMAN_REQUEST_CHECK.format(query))
         LOGGER.debug("Finished checking if user requests human. Response: %s", response)
-        return response.startswith("yes")
+        return response.lower().startswith("yes")
 
     def trigger_zammad_human_request(self):
         print("Human has been requested")
