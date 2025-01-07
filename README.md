@@ -43,3 +43,8 @@ To integrate Zammad, the following configuration has to be set:
   * Conditions: `state is closed`, `Last contact before (relative) 6 months`
   * Action: delete
   * Disable Notifications: yes
+* Ticket attributes (Admin -> Objects -> Ticket):
+  * Name: `automatic_answers`
+  * Display: `Automatic Chatbot Answers`
+  * Format: `Boolean Field`
+  * True as default value
