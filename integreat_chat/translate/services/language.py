@@ -42,9 +42,10 @@ class LanguageService:
         """
         Translate a message from source to target language
         """
-        LOGGER.debug("Starting translation from %s to %s", source_language, target_language)
         if source_language == target_language:
+            LOGGER.debug("Skipping translation from %s to %s", source_language, target_language)
             return message
+        LOGGER.debug("Starting translation from %s to %s", source_language, target_language)
         pipe = pipeline("translation", model=settings.TRANSLATION_MODEL)
         LOGGER.debug("Finished translation from %s to %s", source_language, target_language)
         return " ".join([
