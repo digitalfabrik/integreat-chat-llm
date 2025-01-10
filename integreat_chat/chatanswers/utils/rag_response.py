@@ -26,7 +26,7 @@ class RagResponse():
             )
         else:
             message = self.rag_response
-        return f"{message} {self.create_citation()}"
+        return f"{message}{self.create_citation()}"
 
     def create_citation(self):
         """
@@ -45,7 +45,7 @@ class RagResponse():
                 for path, title in sources
             ]
         )
-        return f"<ul>{citation}</ul>"
+        return f"\n<ul>{citation}</ul>" if citation else ""
 
     def as_dict(self):
         """
