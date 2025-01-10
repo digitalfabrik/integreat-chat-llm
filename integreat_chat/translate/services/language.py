@@ -3,11 +3,13 @@ A service to detect languages and translate messages
 """
 
 import logging
+import hashlib
 
 # pylint: disable=no-name-in-module
 from transformers import pipeline
 
 from django.conf import settings
+from django.core.cache import cache
 from integreat_chat.chatanswers.services.litellm import LiteLLMClient
 
 from ..static.prompts import Prompts
@@ -42,19 +44,26 @@ class LanguageService:
         """
         Translate a message from source to target language
         """
+        cache_id = hashlib.sha256(
+            f"{source_language}-{target_language}-{message}".encode('utf-8')
+        ).hexdigest()
         if source_language == target_language:
             LOGGER.debug("Skipping translation from %s to %s", source_language, target_language)
             return message
+        if translated_message := cache.get(cache_id):
+            return translated_message
         LOGGER.debug("Starting translation from %s to %s", source_language, target_language)
         pipe = pipeline("translation", model=settings.TRANSLATION_MODEL)
         LOGGER.debug("Finished translation from %s to %s", source_language, target_language)
-        return " ".join([
+        translated_message = " ".join([
             result["translation_text"] for result in pipe(
                 self.split_text(message),
                 tgt_lang=LANGUAGE_MAP[target_language],
                 src_lang=LANGUAGE_MAP[source_language]
             )
         ])
+        cache.set(cache_id, translated_message)
+        return translated_message
 
     def opportunistic_translate(self, expected_language, message):
         """

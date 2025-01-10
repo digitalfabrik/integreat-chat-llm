@@ -26,16 +26,17 @@ classifiers = [
 
 dependencies = [
   "django",
+  "huggingface_hub",
   "langchain",
   "langchain-community",
-  "transformers @ git+https://github.com/huggingface/transformers",
-  "huggingface_hub",
   "langchain-ollama",
-  "numpy",
   "langchain_milvus",
-  "sentence-transformers",
   "langchain-huggingface",
   "lxml",
+  "numpy",
+  "redis",
+  "sentence-transformers",
+  "transformers @ git+https://github.com/huggingface/transformers",
   "transformers",
   "torch",
 ]
