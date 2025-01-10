@@ -92,12 +92,12 @@ class AnswerService:
         if not documents:
             language_service = LanguageService()
             return RagResponse(
+                documents,
                 self.rag_request,
                 language_service.translate_message(
                     "en", self.language,
                     Messages.NO_ANSWER
-                ),
-                documents
+                )
             )
         LOGGER.debug("Generating answer.")
         answer = self.llm_api.simple_prompt(Prompts.RAG.format(self.language, question, context))
