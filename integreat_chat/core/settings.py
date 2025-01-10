@@ -49,7 +49,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['apache'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
+            'level': 'DEBUG' if DEBUG else config["DEFAULT"]["LOG_LEVEL"],
             'propagate': True,
         },
     },
