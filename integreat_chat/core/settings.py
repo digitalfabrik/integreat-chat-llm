@@ -41,7 +41,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'apache': {
-            'level': 'DEBUG' if DEBUG else 'INFO',
+            'level': 'DEBUG' if DEBUG else config["DEFAULT"]["LOG_LEVEL"],
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stderr',  # Logs to Apache's error log
         },
@@ -49,7 +49,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['apache'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
+            'level': 'DEBUG' if DEBUG else config["DEFAULT"]["LOG_LEVEL"],
             'propagate': True,
         },
     },
