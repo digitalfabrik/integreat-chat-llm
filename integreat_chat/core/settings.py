@@ -57,7 +57,7 @@ LOGGING = {
 
 ALLOWED_HOSTS = ["127.0.0.1", "igchat-inference.tuerantuer.org"]
 
-INTEGREAT_CMS_DOMAIN = "cms-test.integreat-app.de"
+INTEGREAT_CMS_DOMAIN = config["DEFAULT"]["INTEGREAT_CMS_DOMAIN"]
 
 # Configuration Variables for answer service
 QUESTION_CLASSIFICATION_MODEL = "llama3.3"
