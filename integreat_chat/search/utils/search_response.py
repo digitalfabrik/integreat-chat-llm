@@ -2,7 +2,7 @@
 responses to search request and document class
 """
 import logging
-
+import urllib
 from integreat_chat.chatanswers.utils.integreat_cms import get_page
 
 from .search_request import SearchRequest
@@ -31,14 +31,22 @@ class Document:
         """
         Enrich document with GUI langauge URLs and titles
         """
-        if self.gui_language != self.chunk_source_path.split("/")[2]:
-            self.gui_source_path = (
-                get_page(self.chunk_source_path)["available_languages"][self.gui_language]["path"]
-            )
-        else:
-            self.gui_source_path = self.chunk_source_path
-        LOGGER.debug("Fetching details from Integreat CMS for %s", self.gui_source_path)
-        page = get_page(self.gui_source_path)
+        try:
+            if self.gui_language != self.chunk_source_path.split("/")[2]:
+                LOGGER.debug("Fetching details from Integreat CMS for %s", self.chunk_source_path)
+                self.gui_source_path = (
+                    get_page(self.chunk_source_path)
+                    ["available_languages"][self.gui_language]["path"]
+                )
+            else:
+                self.gui_source_path = self.chunk_source_path
+            LOGGER.debug("Fetching details from Integreat CMS for %s", self.gui_source_path)
+            page = get_page(self.gui_source_path)
+        except urllib.error.HTTPError:
+            LOGGER.warning("Could not find document for source path %s", self.chunk_source_path)
+            self.title = None
+            self.content = None
+            return
         self.title = page["title"] if include_details else None
         self.content = page["excerpt"] if include_details else None
 
@@ -78,7 +86,8 @@ class SearchResponse:
     """
     def __init__(self, search_request: SearchRequest, documents: list[Document]):
         self.search_term = search_request.translated_message
-        self.documents = documents
+        self.documents = [document for document in documents
+                          if document.title is not None and document.content is not None]
 
     def as_dict(self) -> dict:
         """

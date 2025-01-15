@@ -42,7 +42,7 @@ class RagResponse():
         citation = "".join(
             [
                 f"<li><a href='{path}'>{title}</a></li>"
-                for path, title in sources
+                for path, title in sources if title is not None
             ]
         )
         return f"\n<ul>{citation}</ul>" if citation else ""
