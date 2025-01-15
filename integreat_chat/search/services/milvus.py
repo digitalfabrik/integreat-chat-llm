@@ -24,7 +24,7 @@ class UpdateMilvus:
         self.language = language
         self.milvus_host = "127.0.0.1"
         self.milvus_port = "19530"
-        self.milvus_collection = f"collection_ig_{region}_{language}"
+        self.milvus_collection = f"collection_ig_{region}_{language}".replace("-", "_")
 
     def fetch_pages_from_cms(self):
         """

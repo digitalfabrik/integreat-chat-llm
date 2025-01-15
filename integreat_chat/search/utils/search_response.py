@@ -1,9 +1,13 @@
 """
 responses to search request and document class
 """
+import logging
+
 from integreat_chat.chatanswers.utils.integreat_cms import get_page
 
 from .search_request import SearchRequest
+
+LOGGER = logging.getLogger('django')
 
 class Document:
     """
@@ -33,6 +37,7 @@ class Document:
             )
         else:
             self.gui_source_path = self.chunk_source_path
+        LOGGER.debug("Fetching details from Integreat CMS for %s", self.gui_source_path)
         page = get_page(self.gui_source_path)
         self.title = page["title"] if include_details else None
         self.content = page["excerpt"] if include_details else None

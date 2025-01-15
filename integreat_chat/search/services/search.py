@@ -23,7 +23,7 @@ class SearchService:
         self.vdb_host = settings.VDB_HOST
         self.vdb_port = settings.VDB_PORT
         self.deduplicate_results = deduplicate_results
-        self.vdb_collection_name = f"collection_ig_{self.region}_{self.language}"
+        self.vdb_collection_name = f"collection_ig_{self.region}_{self.language}".replace("-", "_")
 
     def get_embeddings(self, question: str):
         """
