@@ -84,7 +84,9 @@ SEARCH_EMBEDDING_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-Min
 SEARCH_EMBEDDING_MODEL = HuggingFaceEmbeddings(
     model_name=SEARCH_EMBEDDING_MODEL_NAME, show_progress=False
 )
-SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES = ["ar", "en", "de", "fa", "uk"]
+SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES = [
+    "ar", "en", "de", "fa", "it", "uk", "fr", "bg", "hr", "ro", "tr", "uk", "vi"
+]
 SEARCH_FALLBACK_LANGUAGE = "en"
 
 VDB_HOST = "127.0.0.1"
