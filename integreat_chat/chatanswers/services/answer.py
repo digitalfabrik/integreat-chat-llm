@@ -72,7 +72,7 @@ class AnswerService:
             search_results = [result for result in search_results if self.check_document_relevance(
                 str(self.rag_request), result.content
             )]
-        LOGGER.debug("Number of documents after relevance check: %i", len(search_results))
+            LOGGER.debug("Number of documents after relevance check: %i", len(search_results))
         return search_results
 
     def extract_answer(self) -> RagResponse:
