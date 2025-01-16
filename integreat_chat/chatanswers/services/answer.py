@@ -84,7 +84,7 @@ class AnswerService:
         question = str(self.rag_request)
         LOGGER.debug("Retrieving documents.")
         documents = self.get_documents()
-        LOGGER.debug("Retrieved documents.")
+        LOGGER.debug("Retrieved %s documents.", len(documents))
 
         context = "\n".join(
             [result.content for result in documents]
