@@ -1,6 +1,8 @@
 """
 RAG response
 """
+from django.conf import settings
+
 from integreat_chat.search.utils.search_response import Document
 from integreat_chat.core.utils.integreat_request import IntegreatRequest
 
@@ -41,7 +43,7 @@ class RagResponse():
 
         citation = "".join(
             [
-                f"<li><a href='{path}'>{title}</a></li>"
+                f"<li><a href='https://{settings.INTEGREAT_APP_DOMAIN}{path}'>{title}</a></li>"
                 for path, title in sources if title is not None
             ]
         )
