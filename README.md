@@ -31,9 +31,15 @@ The Django apps developed in this repo could be moved into the [Integreat CMS](h
 
 To integrate Zammad, the following configuration has to be set:
 
-* Webhook to https://integreat-cms.example.com/api/v3/webhook/zammad/?token=$REGION_TOKEN
+* Webhook to `https://integreat-cms.example.com/api/v3/webhook/zammad/?token=$REGION_TOKEN`
 * Create a group `integreat-chat`. All new issues will be assigned to this group.
-* Create a user that belongs to the `integreat-chat` group and create an access token.
+  * Set an e-mail address for the group
+  * Disable the signature
+* Create a user for the Integreat CMS
+  * Set the user e-mail to `tech+integreat-cms@tuerantuer.org`
+  * Assign the user to the `integreat-chat` group.
+  * Grant `Agent` and `Customer` roles.
+* Create an access token for the Integreat CMS user with permission `Agent tickets`
 * Trigger for webhook:
   * Conditions: `Action is updated`, `Subject contains not "automatically generated message"`
   * Execute: webhook configured above
