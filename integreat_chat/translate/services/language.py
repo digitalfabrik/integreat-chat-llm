@@ -100,4 +100,5 @@ class LanguageService:
                 current_chunk = sentence + " "
         if current_chunk.strip():
             chunks.append(current_chunk.strip())
+        LOGGER.debug("Translation chunks:\n - %s", "\n - ".join(chunks))
         return chunks
