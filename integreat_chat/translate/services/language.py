@@ -47,7 +47,9 @@ class LanguageService:
         """
         return re.match(r"^[0-9\s+\.\,]*$", message)
 
-    def check_cache(self, source_language: str, target_language: str, message: str) -> tuple[str, str|None]:
+    def check_cache(
+        self, source_language: str, target_language: str, message: str
+    ) -> tuple[str, str|None]:
         """
         Check if message exists in translation cache. If not, return cache key
         """
@@ -69,7 +71,9 @@ class LanguageService:
             return False
         return True
 
-    def chunked_translation_pipeline(self, source_language: str, target_language: str, message: str) -> str:
+    def chunked_translation_pipeline(
+            self, source_language: str, target_language: str, message: str
+        ) -> str:
         """
         Translate text in chunks (required for NLLB)
         """
