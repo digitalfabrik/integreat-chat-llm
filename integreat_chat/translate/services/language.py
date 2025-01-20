@@ -86,7 +86,7 @@ class LanguageService:
         """
         Chunk text at the end of sentences into max 500 char chunks
         """
-        sentences = text.split('.')
+        sentences = text.split('. ')
         chunks = []
         current_chunk = ""
         for sentence in sentences:
