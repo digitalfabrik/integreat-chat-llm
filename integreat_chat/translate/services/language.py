@@ -4,6 +4,7 @@ A service to detect languages and translate messages
 
 import logging
 import hashlib
+import re
 
 # pylint: disable=no-name-in-module
 from transformers import pipeline
@@ -84,9 +85,13 @@ class LanguageService:
 
     def split_text(self, text, max_length=200):
         """
-        Chunk text at the end of sentences into max 500 char chunks
+        Chunk text at the end of sentences into max 500 char chunks. Support splitting
+        of sentences in "all" languages, see https://www.unicode.org/reports/tr29/#ATerm
         """
-        sentences = text.split('. ')
+        sentences = re.split(
+            r"[\.\u002E\u2024\uFE52\uFF0E]{1}\s|\s[\.\u002E\u2024\uFE52\uFF0E]{1}\s",
+            text
+        )
         chunks = []
         current_chunk = ""
         for sentence in sentences:
