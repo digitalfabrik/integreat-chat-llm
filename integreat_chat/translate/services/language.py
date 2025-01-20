@@ -41,29 +41,62 @@ class LanguageService:
             return estimated_lang
         return answer.split("-")[0]
 
-    def translate_message(self, source_language, target_language, message):
+    def is_numerical(self, message):
         """
-        Translate a message from source to target language
+        Check if message is numerical
         """
-        cache_id = hashlib.sha256(
+        return re.match(r"^[0-9\s+\.\,]*$", message)
+
+    def check_cache(self, source_language: str, target_language: str, message: str) -> tuple[str, str|None]:
+        """
+        Check if message exists in translation cache. If not, return cache key
+        """
+        cache_key = hashlib.sha256(
             f"{source_language}-{target_language}-{message}".encode('utf-8')
         ).hexdigest()
+        if translated_message := cache.get(cache_key):
+            return cache_key, translated_message
+        return cache_key, None
+
+    def translation_required(self, source_language:str, target_language: str, message: str) -> bool:
+        """
+        Check if a translation is (not) required.
+        """
         if source_language == target_language:
             LOGGER.debug("Skipping translation from %s to %s", source_language, target_language)
-            return message
-        if translated_message := cache.get(cache_id):
-            return translated_message
+            return False
+        if self.is_numerical(message):
+            return False
+        return True
+
+    def chunked_translation_pipeline(self, source_language: str, target_language: str, message: str) -> str:
+        """
+        Translate text in chunks (required for NLLB)
+        """
         LOGGER.debug("Starting translation from %s to %s", source_language, target_language)
         pipe = pipeline("translation", model=settings.TRANSLATION_MODEL)
         LOGGER.debug("Finished translation from %s to %s", source_language, target_language)
-        translated_message = " ".join([
+        return " ".join([
             result["translation_text"] for result in pipe(
                 self.split_text(message),
                 tgt_lang=LANGUAGE_MAP[target_language],
                 src_lang=LANGUAGE_MAP[source_language]
             )
         ])
-        cache.set(cache_id, translated_message)
+
+    def translate_message(self, source_language: str, target_language: str, message: str) -> str:
+        """
+        Translate a message from source to target language
+        """
+        if not self.translation_required(source_language, target_language, message):
+            return message
+        cache_key, translated_message = self.check_cache(source_language, target_language, message)
+        if translated_message is not None:
+            return translated_message
+        translated_message = self.chunked_translation_pipeline(
+            source_language, target_language, message
+        )
+        cache.set(cache_key, translated_message)
         return translated_message
 
     def opportunistic_translate(self, expected_language, message):
