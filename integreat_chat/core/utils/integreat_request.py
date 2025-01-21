@@ -6,6 +6,8 @@ from django.utils.functional import cached_property
 
 from integreat_chat.translate.services.language import LanguageService
 
+from ..static.region_language_map import REGION_LANGUAGE_MAP
+
 LOGGER = logging.getLogger('django')
 
 
@@ -34,8 +36,13 @@ class IntegreatRequest:
         if "language" not in data or "region" not in data or "message" not in data:
             raise ValueError("Missing language, region or message attribute")
         self.original_message = data["message"]
-        self.gui_language = data["language"]
         self.region = data["region"]
+        self.gui_language = (
+            REGION_LANGUAGE_MAP[self.region][data["language"]]
+            if self.region in REGION_LANGUAGE_MAP
+            and data["language"] in REGION_LANGUAGE_MAP[self.region]
+            else data["language"]
+        )
 
     @cached_property
     def likely_message_language(self) -> str:

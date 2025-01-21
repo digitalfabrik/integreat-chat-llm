@@ -85,13 +85,7 @@ class LanguageService:
         """
         Translate text in chunks (required for NLLB)
         """
-        LOGGER.debug(
-            "Starting translation from %s to %s", source_language, target_language
-        )
         pipe = pipeline("translation", model=settings.TRANSLATION_MODEL)
-        LOGGER.debug(
-            "Finished translation from %s to %s", source_language, target_language
-        )
         return " ".join(
             [
                 result["translation_text"]
@@ -116,9 +110,21 @@ class LanguageService:
         )
         if translated_message is not None:
             return translated_message
-        translated_message = self.chunked_translation_pipeline(
-            source_language, target_language, message
-        )
+        try:
+            LOGGER.debug(
+                "Starting translation from %s to %s", source_language, target_language
+            )
+            translated_message = self.chunked_translation_pipeline(
+                source_language, target_language, message
+            )
+            LOGGER.debug(
+                "Finished translation from %s to %s", source_language, target_language
+            )
+        except KeyError as exc:
+            raise KeyError(
+                f"Language pair ({source_language}, {target_language})"
+                f" not supported by translation model"
+            ) from exc
         cache.set(cache_key, translated_message)
         return translated_message
 

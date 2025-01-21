@@ -1,5 +1,5 @@
 """
-LiteLLM Client
+Very simple LiteLLM Client (should be compatible to OpenAI API)
 """
 
 import requests
