@@ -12,7 +12,9 @@ from transformers import pipeline
 
 from django.conf import settings
 from django.core.cache import cache
-from integreat_chat.chatanswers.services.litellm import LiteLLMClient
+from integreat_chat.chatanswers.services.llmapi import (
+    LlmApiClient, LlmMessage, LlmPrompt, LlmResponse
+)
 
 from ..static.prompts import Prompts
 from ..static.language_code_map import LANGUAGE_MAP
@@ -27,23 +29,27 @@ class LanguageService:
 
     def __init__(self):
         """ """
-        self.llm_api = LiteLLMClient(
-            Prompts.SYSTEM_PROMPT, settings.LANGUAGE_CLASSIFICATIONH_MODEL
-        )
+        self.llm_api = LlmApiClient()
 
     def classify_language(self, estimated_lang, message):
         """
         Check if a message fits the estimated language.
         Return another language tag, if it does not fit.
         """
-        LOGGER.debug("Detecting message language")
-        answer = self.llm_api.simple_prompt(
-            Prompts.LANGUAGE_CLASSIFICATION.format(message)
+        prompt = LlmPrompt(
+            settings.LANGUAGE_CLASSIFICATIONH_MODEL,
+            [
+                LlmMessage(Prompts.LANGUAGE_CLASSIFICATION, role="system"),
+                LlmMessage(message, role="user")
+            ],
+            json_schema = Prompts.LANGUAGE_CLASSIFICATION_SCHEMA
         )
-        LOGGER.debug("Finished message language detection: %s", answer)
-        if answer.startswith(estimated_lang):
+        LOGGER.debug("Detecting message language")
+        classfied_language = LlmResponse(self.llm_api.chat_prompt(prompt)).as_dict()["bcp47-tag"]
+        LOGGER.debug("Finished message language detection: %s", classfied_language)
+        if classfied_language.startswith(estimated_lang):
             return estimated_lang
-        return answer.split("-")[0]
+        return classfied_language.split("-")[0]
 
     def is_numerical(self, message):
         """
@@ -141,8 +147,9 @@ class LanguageService:
 
     def split_text(self, text, max_length=200, lang="xx"):
         """
-        Chunk text into max_length char chunks while keeping complete sentences. Supports multi-lingual
-        splitting using spacy's multi-lingual model, see - https://spacy.io/models/xx
+        Chunk text into max_length char chunks while keeping complete sentences.
+        Supports multi-lingual splitting using spacy's multi-lingual model,
+        see - https://spacy.io/models/xx
         """
         try:
             nlp = spacy.load(lang)

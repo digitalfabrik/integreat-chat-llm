@@ -6,7 +6,7 @@ import re
 
 from django.conf import settings
 
-from integreat_chat.chatanswers.services.litellm import LiteLLMClient
+from integreat_chat.chatanswers.services.llmapi import LlmApiClient, LlmMessage, LlmPrompt, LlmResponse
 
 from ..static.prompts import Prompts
 
@@ -19,10 +19,7 @@ class QueryTransformer:
     def __init__(self, original_query):
         self.original_query = original_query
         self.modified_query = ""
-        self.llm_api = LiteLLMClient(
-            Prompts.CHECK_SYSTEM_PROMPT,
-            settings.RAG_QUERY_OPTIMIZATION_MODEL
-        )
+        self.llm_api = LlmApiClient()
         self.length_threshold_chars = 150
 
     def punctuation_thresh_exceeded(self) -> bool:
@@ -69,9 +66,14 @@ class QueryTransformer:
         """
         Optimize the user query for document retrieval
         """
-        self.modified_query = self.llm_api.simple_prompt(
-            Prompts.OPTIMIZE_MESSAGE.format(self.original_query)
+        prompt = LlmPrompt(
+            settings.RAG_QUERY_OPTIMIZATION_MODEL,
+            [
+                LlmMessage(Prompts.CHECK_SYSTEM_PROMPT, role="system"),
+                LlmMessage(Prompts.OPTIMIZE_MESSAGE.format(self.original_query))
+            ]
         )
+        self.modified_query = str(LlmResponse(self.llm_api.chat_prompt(prompt)))
         return {
             "original_query": self.original_query,
             "modified_query": self.modified_query,
