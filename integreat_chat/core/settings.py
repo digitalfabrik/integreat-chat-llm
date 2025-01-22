@@ -96,8 +96,8 @@ SEARCH_FALLBACK_LANGUAGE = "en"
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
 
-LITELLM_SERVER=config['LiteLLM']['SERVER']
-LITELLM_API_KEY=config['LiteLLM']['API_KEY']
+LLM_SERVER=config['LiteLLM']['SERVER']
+LLM_API_KEY=config['LiteLLM']['API_KEY']
 
 # Application definition
 

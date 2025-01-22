@@ -9,10 +9,19 @@ class Prompts:
 
     SYSTEM_PROMPT = "You are an internal assistant in an application without user interaction."
 
-    LANGUAGE_CLASSIFICATION = """
-Identify the language of the provided message.
-Only return the most likely BCP47 language tag that represents the message's language.
-Do not add any additional words.
+    LANGUAGE_CLASSIFICATION = "Identify the BCP47 language tag of the provided message."
 
-Message: {0}
-"""
+    LANGUAGE_CLASSIFICATION_SCHEMA = {
+        "name": "language",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "bcp47-tag": {
+                    "type": "string"
+                }
+            },
+            "required": ["bcp47-tag"],
+            "additionalProperties": False,
+        },
+        "strict": True,
+    }

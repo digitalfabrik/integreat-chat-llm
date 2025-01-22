@@ -13,7 +13,7 @@ from ..static.prompts import Prompts
 from ..static.messages import Messages
 from ..utils.rag_response import RagResponse
 from ..utils.rag_request import RagRequest
-from .litellm import LiteLLMClient
+from .llmapi import LlmApiClient
 
 LOGGER = logging.getLogger('django')
 
@@ -31,7 +31,7 @@ class AnswerService:
         self.language = rag_request.use_language
         self.region = rag_request.region
         self.llm_model_name = settings.RAG_MODEL
-        self.llm_api = LiteLLMClient(Prompts.RAG_SYSTEM_PROMPT, settings.RAG_MODEL)
+        self.llm_api = LlmApiClient()
 
     def needs_answer(self, message: str) -> bool:
         """

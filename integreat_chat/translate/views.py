@@ -14,6 +14,7 @@ def translate_message(request):
     """
     Translate a message from a source into a target language
     """
+    status = 200
     result = None
     if (
         request.method in ("POST")
@@ -28,11 +29,18 @@ def translate_message(request):
         ):
             result = {"status": "error"}
         else:
-            result = {
-                "translation": language_service.translate_message(
-                    data["source_language"], data["target_language"], data["message"]
-                ),
-                "target_language": data["target_language"],
-                "status": "success",
-            }
-    return JsonResponse(result)
+            try:
+                result = {
+                    "translation": language_service.translate_message(
+                        data["source_language"], data["target_language"], data["message"]
+                    ),
+                    "target_language": data["target_language"],
+                    "status": "success",
+                }
+            except KeyError as exc:
+                result = {
+                    "status": "error",
+                    "reason": str(exc)
+                }
+                status = 404
+    return JsonResponse(data=result, status=status)
