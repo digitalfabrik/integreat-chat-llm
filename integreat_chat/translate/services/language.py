@@ -18,6 +18,7 @@ from integreat_chat.chatanswers.services.llmapi import (
 
 from ..static.prompts import Prompts
 from ..static.language_code_map import LANGUAGE_MAP
+from ..static.language_classification_map import LANGUAGE_CLASSIFICATION_MAP
 
 LOGGER = logging.getLogger("django")
 
@@ -30,6 +31,19 @@ class LanguageService:
     def __init__(self):
         """ """
         self.llm_api = LlmApiClient()
+
+    def parse_language(self, estimated_lang: str, response: dict) -> str:
+        """
+        Parse String with language classification received from model
+        """
+        classfied_language = response["bcp47-tag"]
+        if classfied_language.startswith(estimated_lang):
+            return estimated_lang
+        stripped_language = classfied_language.split("-")[0]
+        if stripped_language in LANGUAGE_CLASSIFICATION_MAP:
+            return LANGUAGE_CLASSIFICATION_MAP[stripped_language]
+        LOGGER.debug("Finished message language detection: %s", stripped_language)
+        return stripped_language
 
     def classify_language(self, estimated_lang, message):
         """
@@ -45,11 +59,8 @@ class LanguageService:
             json_schema = Prompts.LANGUAGE_CLASSIFICATION_SCHEMA
         )
         LOGGER.debug("Detecting message language")
-        classfied_language = LlmResponse(self.llm_api.chat_prompt(prompt)).as_dict()["bcp47-tag"]
-        LOGGER.debug("Finished message language detection: %s", classfied_language)
-        if classfied_language.startswith(estimated_lang):
-            return estimated_lang
-        return classfied_language.split("-")[0]
+        response = LlmResponse(self.llm_api.chat_prompt(prompt)).as_dict()
+        return self.parse_language(estimated_lang, response)
 
     def is_numerical(self, message):
         """
