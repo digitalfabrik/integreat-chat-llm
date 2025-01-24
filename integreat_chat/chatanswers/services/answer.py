@@ -84,7 +84,7 @@ class AnswerService:
         question = str(self.rag_request)
         language_service = LanguageService()
 
-        if self.detect_human_request():
+        if self.detect_request_human():
             return RagResponse(
                 [],
                 self.rag_request,
