@@ -82,6 +82,20 @@ class AnswerService:
         return: a dict containing a response and sources
         """
         question = str(self.rag_request)
+        language_service = LanguageService()
+
+        if self.detect_human_request():
+            return RagResponse(
+                [],
+                self.rag_request,
+                language_service.translate_message(
+                    "en", 
+                    self.language,
+                    Messages.TALK_TO_HUMAN
+                ),
+                False
+            )
+
         LOGGER.debug("Retrieving documents.")
         documents = self.get_documents()
         LOGGER.debug("Retrieved %s documents.", len(documents))
@@ -90,7 +104,6 @@ class AnswerService:
             [result.content for result in documents]
         )[:settings.RAG_CONTEXT_MAX_LENGTH]
         if not documents:
-            language_service = LanguageService()
             return RagResponse(
                 documents,
                 self.rag_request,
@@ -117,7 +130,7 @@ class AnswerService:
         )
         return response.startswith("yes")
 
-    def detect_human_request(self) -> bool:
+    def detect_request_human(self) -> bool:
         """
         Check if the user requests to talk to a human counselor or is asking a question
         return: bool that indicates if the user requests a human or not
@@ -127,6 +140,3 @@ class AnswerService:
         response = self.llm_api.simple_prompt(Prompts.HUMAN_REQUEST_CHECK.format(query))
         LOGGER.debug("Finished checking if user requests human. Response: %s", response)
         return response.lower().startswith("yes")
-
-    def trigger_zammad_human_request(self):
-        print("Human has been requested")
