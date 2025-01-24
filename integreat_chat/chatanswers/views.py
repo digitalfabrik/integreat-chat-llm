@@ -21,7 +21,7 @@ def extract_answer(request):
     Extract an answer for a user query from Integreat content. Expects a JSON body with message
     and language attributes
     """
-    rag_response = {}
+    rag_response = {"status": "error"}
     if (
         request.method in ("POST")
         and request.META.get("CONTENT_TYPE").lower() == "application/json"
@@ -29,4 +29,4 @@ def extract_answer(request):
         rag_request = RagRequest(json.loads(request.body))
         answer_service = AnswerService(rag_request)
         rag_response = answer_service.extract_answer()
-        return JsonResponse(rag_response.as_dict())
+    return JsonResponse(rag_response.as_dict())
