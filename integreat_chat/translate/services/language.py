@@ -32,20 +32,18 @@ class LanguageService:
         """ """
         self.llm_api = LlmApiClient()
 
-    def parse_language(self, estimated_lang: str, response: dict) -> str:
+    def parse_language(self, response: dict) -> str:
         """
         Parse String with language classification received from model
         """
         classfied_language = response["bcp47-tag"]
-        if classfied_language.startswith(estimated_lang):
-            return estimated_lang
         stripped_language = classfied_language.split("-")[0]
         if stripped_language in LANGUAGE_CLASSIFICATION_MAP:
             return LANGUAGE_CLASSIFICATION_MAP[stripped_language]
         LOGGER.debug("Finished message language detection: %s", stripped_language)
         return stripped_language
 
-    def classify_language(self, estimated_lang, message):
+    def classify_language(self, message):
         """
         Check if a message fits the estimated language.
         Return another language tag, if it does not fit.
@@ -60,7 +58,7 @@ class LanguageService:
         )
         LOGGER.debug("Detecting message language")
         response = LlmResponse(self.llm_api.chat_prompt(prompt)).as_dict()
-        return self.parse_language(estimated_lang, response)
+        return self.parse_language(response)
 
     def is_numerical(self, message):
         """
@@ -149,7 +147,7 @@ class LanguageService:
         """
         Translate if detected language does not fit the expected language
         """
-        classified_language = self.classify_language(expected_language, message)
+        classified_language = self.classify_language(message)
         return (
             message
             if classified_language == expected_language
