@@ -52,7 +52,7 @@ To integrate Zammad, the following configuration has to be set:
   * Execute: webhook configured above
 * Auto response for new tickets in each language, exmple is `EN`
   * Conditions: `State is new`, `Action is updated`, `Subject contains not "automatically generated message"`, `Title contains [EN]`
-  * Execute: `Email`, `visibility public`, `Recipient Customer`, `Subject "automatically generated message"`, add a message fitting the needs
+  * Execute: `Note`, `visibility public`, `Subject "automatically generated message"`, add a message fitting the needs
 * Scheduler to delete old tickets:
   * Run once a week
   * Conditions: `state is closed`, `Last contact before (relative) 6 months`
