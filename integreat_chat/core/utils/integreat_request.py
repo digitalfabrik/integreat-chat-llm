@@ -49,9 +49,7 @@ class IntegreatRequest:
         """
         Detect language and decide which language to use for RAG
         """
-        return self.language_service.classify_language(
-            self.gui_language, self.original_message
-        )
+        return self.language_service.classify_language(self.original_message)
 
     @cached_property
     def translated_message(self) -> str:
