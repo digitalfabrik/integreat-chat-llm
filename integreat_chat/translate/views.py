@@ -11,24 +11,22 @@ LOGGER = logging.getLogger("django")
 
 @csrf_exempt
 def detect_language(request):
-
+    """
+    Detect language of a provided message.
+    """
+    result = {}
     if (
         request.method in ("POST")
         and request.META.get("CONTENT_TYPE").lower() == "application/json"
     ):
         data = json.loads(request.body)
         language_service = LanguageService()
-        if (
-            "gui_language" not in data
-            or "message" not in data
-        ):
+        if "message" not in data:
             result = {"status": "error"}
         else:
             result = {
-                "detected_language": language_service.classify_language(
-                    data["gui_language"], data["message"]
-                ),
-                "status": "success"
+                "detected_language": language_service.classify_language(data["message"]),
+                "status": "success",
             }
     return JsonResponse(data=result)
 

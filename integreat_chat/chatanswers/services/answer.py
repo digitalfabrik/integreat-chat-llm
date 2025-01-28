@@ -3,6 +3,8 @@ Retrieving matching documents for question an create summary text
 """
 
 import logging
+import asyncio
+import aiohttp
 
 from django.conf import settings
 
@@ -14,7 +16,7 @@ from ..static.prompts import Prompts
 from ..static.messages import Messages
 from ..utils.rag_response import RagResponse
 from ..utils.rag_request import RagRequest
-from .llmapi import LlmApiClient
+from .llmapi import LlmApiClient, LlmMessage, LlmPrompt, LlmResponse
 
 LOGGER = logging.getLogger("django")
 
@@ -83,8 +85,9 @@ class AnswerService:
             {
                 "message": self.rag_request.translated_message,
                 "language": self.rag_request.use_language,
-                "region": self.rag_request.region,
-            }
+                "region": self.rag_request.region
+            },
+            True
         )
         search = SearchService(search_request, deduplicate_results=False)
         search_results = search.search_documents(
@@ -98,14 +101,10 @@ class AnswerService:
         )
         LOGGER.debug("Number of retrieved documents: %i", len(search_results))
         if settings.RAG_RELEVANCE_CHECK:
-            search_results = [
-                result
-                for result in search_results
-                if self.check_document_relevance(str(self.rag_request), result.content)
-            ]
-            LOGGER.debug(
-                "Number of documents after relevance check: %i", len(search_results)
+            search_results = asyncio.run(self.check_documents_relevance(
+                str(self.rag_request), search_results)
             )
+            LOGGER.debug("Number of documents after relevance check: %i", len(search_results))
         return search_results
 
     def extract_answer(self) -> RagResponse:
@@ -145,7 +144,7 @@ class AnswerService:
         )
         return RagResponse(documents, self.rag_request, answer)
 
-    def check_document_relevance(self, question: str, content: str) -> bool:
+    async def check_documents_relevance(self, question: str, search_results: list) -> bool:
         """
         Check if the retrieved documents are relevant for answering the question
 
@@ -153,14 +152,24 @@ class AnswerService:
         param content: a page content that could be relevant for answering the question
         return: bool that indicates if the page is relevant for the question
         """
-        response = (
-            self.llm_api.simple_prompt(
-                Prompts.RELEVANCE_CHECK.format(question, content)
-            )
-            .strip()
-            .lower()
-        )
-        return response.startswith("yes")
+        sys_message = LlmMessage(Prompts.CHECK_SYSTEM_PROMPT, "system")
+        tasks = []
+        async with aiohttp.ClientSession() as session:
+            for document in search_results:
+                message = LlmMessage(Prompts.RELEVANCE_CHECK.format(question, document.content))
+                tasks.append(
+                    asyncio.create_task(self.llm_api.chat_prompt(
+                        session,
+                        LlmPrompt(settings.RAG_RELEVANCE_CHECK_MODEL, [sys_message, message])
+                    )
+                ))
+            llmresponses = await asyncio.gather(*tasks)
+        kept_documents = []
+        for i, response in enumerate(llmresponses):
+            llm_response = LlmResponse(response)
+            if str(llm_response).startswith("yes"):
+                kept_documents.append(search_results[i])
+        return kept_documents
 
     def detect_request_human(self) -> bool:
         """

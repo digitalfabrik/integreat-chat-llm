@@ -17,9 +17,10 @@ class IntegreatRequest:
     their own __init__() method which sets the supported languages by the
     used models and a fallback language.
     """
-    def __init__(self, data):
+    def __init__(self, data: dict, skip_language_detection: bool = False) -> None:
         self.parse_arguments(data)
         self.language_service = LanguageService()
+        self.skip_language_detection = skip_language_detection
         self.supported_languages = (
             None if not hasattr(self, "supported_languages") else self.supported_languages
         )
@@ -29,7 +30,7 @@ class IntegreatRequest:
         if self.supported_languages is None or self.fallback_language is None:
             raise ValueError("supported_languages or fallback_language has not been set.")
 
-    def parse_arguments(self, data):
+    def parse_arguments(self, data: dict) -> None:
         """
         Parse arguments from HTTP request body
         """
@@ -49,9 +50,9 @@ class IntegreatRequest:
         """
         Detect language and decide which language to use for RAG
         """
-        return self.language_service.classify_language(
-            self.gui_language, self.original_message
-        )
+        if self.skip_language_detection:
+            return self.gui_language
+        return self.language_service.classify_language(self.original_message)
 
     @cached_property
     def translated_message(self) -> str:

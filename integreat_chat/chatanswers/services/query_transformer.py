@@ -4,6 +4,7 @@ Service to transform/optimize input queries
 
 import re
 
+import asyncio
 from django.conf import settings
 
 from integreat_chat.chatanswers.services.llmapi import LlmApiClient, LlmMessage, LlmPrompt, LlmResponse
@@ -73,7 +74,9 @@ class QueryTransformer:
                 LlmMessage(Prompts.OPTIMIZE_MESSAGE.format(self.original_query))
             ]
         )
-        self.modified_query = str(LlmResponse(self.llm_api.chat_prompt(prompt)))
+        self.modified_query = str(LlmResponse(asyncio.run(
+            self.llm_api.chat_prompt_session_wrapper(prompt)
+        )))
         return {
             "original_query": self.original_query,
             "modified_query": self.modified_query,
