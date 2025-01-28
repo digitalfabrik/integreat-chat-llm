@@ -52,11 +52,14 @@ class AnswerService:
         """
         Retrieve documents for RAG
         """
-        search_request = SearchRequest({
-            "message": self.rag_request.translated_message,
-            "language": self.rag_request.use_language,
-            "region": self.rag_request.region
-        })
+        search_request = SearchRequest(
+            {
+                "message": self.rag_request.translated_message,
+                "language": self.rag_request.use_language,
+                "region": self.rag_request.region
+            },
+            True
+        )
         search = SearchService(search_request, deduplicate_results=False)
         search_results = search.search_documents(
             settings.RAG_MAX_PAGES,

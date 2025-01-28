@@ -11,7 +11,7 @@ class SearchRequest(IntegreatRequest):
     """
     Representation for search request
     """
-    def __init__(self, data):
+    def __init__(self, data: dict, skip_language_detection: bool = False):
         self.supported_languages = settings.SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES
         self.fallback_language = settings.SEARCH_FALLBACK_LANGUAGE
-        super().__init__(data)
+        super().__init__(data, skip_language_detection)
