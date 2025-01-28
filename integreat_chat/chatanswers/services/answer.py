@@ -42,13 +42,38 @@ class AnswerService:
         param message: a user message
         return: indication if the message needs an answer
         """
-        LOGGER.debug("Checking if message requires response.")
+        LOGGER.debug("Checking if the user requests to talk to a human counselor")
+        if self.detect_request_human():
+            LOGGER.debug("User requests human intervention.")
+            return [
+                False,
+                RagResponse(
+                    [],
+                    self.rag_request,
+                    language_service.translate_message(
+                        "en", self.language, Messages.TALK_TO_HUMAN
+                    ),
+                    False,
+                ),
+            ]
+
+        LOGGER.debug("Checking if user message is a question or intent")
         answer = self.llm_api.simple_prompt(Prompts.CHECK_QUESTION.format(message))
         if answer.startswith("Yes"):
             LOGGER.debug("Message requires response.")
-            return True
+            return [True, None]
         LOGGER.debug("Message does not require response.")
-        return False
+        return [
+            False,
+            RagResponse(
+                [],
+                self.rag_request,
+                language_service.translate_message(
+                    "en", self.language, Messages.NOT_QUESTION
+                ),
+                False,
+            ),
+        ]
 
     def get_documents(self) -> list:
         """
@@ -92,15 +117,9 @@ class AnswerService:
         question = str(self.rag_request)
         language_service = LanguageService()
 
-        if self.detect_request_human():
-            return RagResponse(
-                [],
-                self.rag_request,
-                language_service.translate_message(
-                    "en", self.language, Messages.TALK_TO_HUMAN
-                ),
-                False,
-            )
+        needs_answer, no_answer_response = self.needs_answer(question)
+        if not needs_answer:
+            return no_answer_response
 
         LOGGER.debug("Retrieving documents.")
         documents = self.get_documents()
