@@ -3,7 +3,8 @@ Very simple LiteLLM Client (should be compatible to OpenAI API)
 """
 import json
 
-import requests
+import asyncio
+import aiohttp
 
 from django.conf import settings
 
@@ -90,14 +91,28 @@ class LlmApiClient:
         param message: Message prompted to LLM
         return: message returned by LLM
         """
-        message = LlmMessage(message)
-        return str(LlmResponse(self.chat_prompt(LlmPrompt(settings.RAG_MODEL, [message]))))
+        return str(
+            LlmResponse(asyncio.run(self.chat_prompt_session_wrapper(
+                LlmPrompt(settings.RAG_MODEL, [LlmMessage(message)])
+            )))
+        )
 
-    def chat_prompt(self, prompt: LlmPrompt) -> str:
+    async def chat_prompt_session_wrapper(self, prompt: LlmPrompt) -> dict:
+        """
+        Async wrapper for simple prompt
+        """
+        async with aiohttp.ClientSession() as session:
+            return await self.chat_prompt(session, prompt)
+
+    async def chat_prompt(self, session: aiohttp.ClientSession, prompt: LlmPrompt) -> dict:
         """
         Get RAG answer
         """
-        return requests.post(self.api_url, json=prompt.as_dict(), timeout=120, headers={
-            'Authorization': f'Bearer {settings.LLM_API_KEY}',
-            'Content-Type': 'application/json',
-        }).json()
+        async with session.post(self.api_url,
+                                json=prompt.as_dict(),
+                                timeout=120,
+                                headers={
+                                    'Authorization': f'Bearer {settings.LLM_API_KEY}',
+                                    'Content-Type': 'application/json',
+                                }) as response:
+            return await response.json()
