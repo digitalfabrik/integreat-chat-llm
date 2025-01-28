@@ -5,6 +5,7 @@ A service to detect languages and translate messages
 import logging
 import hashlib
 import re
+import asyncio
 import spacy
 
 # pylint: disable=no-name-in-module
@@ -57,8 +58,8 @@ class LanguageService:
             json_schema = Prompts.LANGUAGE_CLASSIFICATION_SCHEMA
         )
         LOGGER.debug("Detecting message language")
-        response = LlmResponse(self.llm_api.chat_prompt(prompt)).as_dict()
-        return self.parse_language(response)
+        response = LlmResponse(asyncio.run(self.llm_api.chat_prompt_session_wrapper(prompt)))
+        return self.parse_language(response.as_dict())
 
     def is_numerical(self, message):
         """
