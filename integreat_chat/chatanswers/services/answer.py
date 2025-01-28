@@ -35,7 +35,7 @@ class AnswerService:
         self.llm_model_name = settings.RAG_MODEL
         self.llm_api = LlmApiClient()
 
-    def needs_answer(self, message: str) -> bool:
+    def needs_answer(self, message: str, language_service: LanguageService) -> bool:
         """
         Check if a chat message is a question
 
@@ -117,7 +117,7 @@ class AnswerService:
         question = str(self.rag_request)
         language_service = LanguageService()
 
-        needs_answer, no_answer_response = self.needs_answer(question)
+        needs_answer, no_answer_response = self.needs_answer(question, language_service)
         if not needs_answer:
             return no_answer_response
 
