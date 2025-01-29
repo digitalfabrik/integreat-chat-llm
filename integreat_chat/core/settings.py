@@ -74,6 +74,10 @@ RAG_RELEVANCE_CHECK = (
         config["DEFAULT"]["RAG_RELEVANCE_CHECK"] if
         "RAG_RELEVANCE_CHECK" in config["DEFAULT"] else "True"
     ) == "True"
+RAG_HUMAN_REQUEST_CHECK = (
+        config["DEFAULT"]["RAG_HUMAN_REQUEST_CHECK"] if
+        "RAG_HUMAN_REQUEST_CHECK" in config["DEFAULT"] else "True"
+    ) == "True"
 RAG_RELEVANCE_CHECK_MODEL = "llama3.3"
 RAG_QUERY_OPTIMIZATION = True
 RAG_QUERY_OPTIMIZATION_MODEL = "llama3.3"
