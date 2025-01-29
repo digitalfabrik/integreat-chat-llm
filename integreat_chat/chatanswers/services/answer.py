@@ -44,9 +44,7 @@ class AnswerService:
         param message: a user message
         return: indication if the message needs an answer
         """
-        LOGGER.debug("Checking if the user requests to talk to a human counselor")
         if self.detect_request_human():
-            LOGGER.debug("User requests human intervention.")
             message = Messages.TALK_TO_HUMAN
         else:
             answer = self.llm_api.simple_prompt(Prompts.CHECK_QUESTION.format(message))

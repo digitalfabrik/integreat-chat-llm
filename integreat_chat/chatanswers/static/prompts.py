@@ -41,7 +41,14 @@ Message: {0}
     
 Text: {0}"""
 
-    HUMAN_REQUEST_CHECK = """You are an assistant trained to classify user intent. Your task is to determine whether the user wants to talk to a human.
-Always respond with "Yes" if the user is asking for human assistance, and "No otherwise"
+    HUMAN_REQUEST_CHECK = """You are an assistant trained to classify user intent. Your task is to determine whether the user explicitly wants to talk to a human counselor.
 
-User query: {0}"""
+Respond with "Yes" only if the user is explicitly requesting a human, like in these cases:
+- "I want to talk to a human"
+- "Can I speak with a counselor?"
+- "I need human support"
+
+Otherwise, respond with "No," even if the user is asking about general topics.
+
+User query: {0}
+"""
