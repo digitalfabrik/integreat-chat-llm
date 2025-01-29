@@ -1,6 +1,7 @@
 """
 Message for processing a user message / RAG request
 """
+
 import logging
 
 from django.conf import settings
@@ -9,7 +10,7 @@ from django.utils.functional import cached_property
 from integreat_chat.core.utils.integreat_request import IntegreatRequest
 from integreat_chat.chatanswers.services.query_transformer import QueryTransformer
 
-LOGGER = logging.getLogger('django')
+LOGGER = logging.getLogger("django")
 
 
 class RagRequest(IntegreatRequest):
@@ -52,5 +53,5 @@ class RagRequest(IntegreatRequest):
             "message": str(self),
             "rag_language": self.use_language,
             "gui_language": self.gui_language,
-            "region": self.region
+            "region": self.region,
         }

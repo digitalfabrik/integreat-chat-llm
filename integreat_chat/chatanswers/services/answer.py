@@ -1,6 +1,7 @@
 """
 Retrieving matching documents for question an create summary text
 """
+
 import logging
 import asyncio
 import aiohttp
@@ -17,13 +18,14 @@ from ..utils.rag_response import RagResponse
 from ..utils.rag_request import RagRequest
 from .llmapi import LlmApiClient, LlmMessage, LlmPrompt, LlmResponse
 
-LOGGER = logging.getLogger('django')
+LOGGER = logging.getLogger("django")
 
 
 class AnswerService:
     """
     Service for providing summary answers to question-like messages.
     """
+
     def __init__(self, rag_request: RagRequest) -> None:
         """
         param region: Integreat CMS region slug
@@ -35,20 +37,32 @@ class AnswerService:
         self.llm_model_name = settings.RAG_MODEL
         self.llm_api = LlmApiClient()
 
-    def needs_answer(self, message: str) -> bool:
+    def skip_rag_answer(self, message: str, language_service: LanguageService) -> bool:
         """
         Check if a chat message is a question
 
         param message: a user message
         return: indication if the message needs an answer
         """
-        LOGGER.debug("Checking if message requires response.")
-        answer = self.llm_api.simple_prompt(Prompts.CHECK_QUESTION.format(message))
-        if answer.startswith("Yes"):
-            LOGGER.debug("Message requires response.")
-            return True
-        LOGGER.debug("Message does not require response.")
-        return False
+        LOGGER.debug("Checking if the user requests to talk to a human counselor")
+        if self.detect_request_human():
+            LOGGER.debug("User requests human intervention.")
+            message = Messages.TALK_TO_HUMAN
+        else:
+            answer = self.llm_api.simple_prompt(Prompts.CHECK_QUESTION.format(message))
+            if answer.startswith("Yes"):
+                LOGGER.debug("Message requires response.")
+                return None
+            message = Messages.NOT_QUESTION
+            LOGGER.debug("Message does not require response.")
+        return RagResponse(
+            [],
+            self.rag_request,
+            language_service.translate_message(
+                "en", self.language, message
+            ),
+            False,
+        )
 
     def get_documents(self) -> list:
         """
@@ -70,7 +84,7 @@ class AnswerService:
         search_results = search.deduplicate_pages(
             search_results,
             settings.RAG_MAX_PAGES,
-            max_score=settings.RAG_DISTANCE_THRESHOLD
+            max_score=settings.RAG_DISTANCE_THRESHOLD,
         )
         LOGGER.debug("Number of retrieved documents: %i", len(search_results))
         if settings.RAG_RELEVANCE_CHECK:
@@ -87,26 +101,33 @@ class AnswerService:
         return: a dict containing a response and sources
         """
         question = str(self.rag_request)
+        language_service = LanguageService()
+
+        if response := self.skip_rag_answer(question, language_service):
+            return response
+
         LOGGER.debug("Retrieving documents.")
         documents = self.get_documents()
         LOGGER.debug("Retrieved %s documents.", len(documents))
 
-        context = "\n".join(
-            [result.content for result in documents]
-        )[:settings.RAG_CONTEXT_MAX_LENGTH]
+        context = "\n".join([result.content for result in documents])[
+            : settings.RAG_CONTEXT_MAX_LENGTH
+        ]
         if not documents:
-            language_service = LanguageService()
             return RagResponse(
                 documents,
                 self.rag_request,
                 language_service.translate_message(
-                    "en", self.language,
-                    Messages.NO_ANSWER
-                )
+                    "en", self.language, Messages.NO_ANSWER
+                ),
             )
         LOGGER.debug("Generating answer.")
-        answer = self.llm_api.simple_prompt(Prompts.RAG.format(self.language, question, context))
-        LOGGER.debug("Finished generating answer. Question: %s\nAnswer: %s", question, answer)
+        answer = self.llm_api.simple_prompt(
+            Prompts.RAG.format(self.language, question, context)
+        )
+        LOGGER.debug(
+            "Finished generating answer. Question: %s\nAnswer: %s", question, answer
+        )
         return RagResponse(documents, self.rag_request, answer)
 
     async def check_documents_relevance(self, question: str, search_results: list) -> bool:
@@ -135,3 +156,14 @@ class AnswerService:
             if str(llm_response).startswith("yes"):
                 kept_documents.append(search_results[i])
         return kept_documents
+
+    def detect_request_human(self) -> bool:
+        """
+        Check if the user requests to talk to a human counselor or is asking a question
+        return: bool that indicates if the user requests a human or not
+        """
+        query = str(self.rag_request)
+        LOGGER.debug("Checking if user requests human intervention")
+        response = self.llm_api.simple_prompt(Prompts.HUMAN_REQUEST_CHECK.format(query))
+        LOGGER.debug("Finished checking if user requests human. Response: %s", response)
+        return response.lower().startswith("yes")
