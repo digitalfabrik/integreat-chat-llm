@@ -3,6 +3,8 @@ responses to search request and document class
 """
 import logging
 import urllib
+
+from django.conf import settings
 from integreat_chat.chatanswers.utils.integreat_cms import get_page
 
 from .search_request import SearchRequest
@@ -32,7 +34,12 @@ class Document:
         Enrich document with GUI langauge URLs and titles
         """
         try:
-            if self.gui_language != self.chunk_source_path.split("/")[2]:
+            if (
+                self.gui_language != self.chunk_source_path
+                .replace(f"https://{settings.INTEGREAT_APP_DOMAIN}", "")
+                .replace(f"https://{settings.INTEGREAT_CMS_DOMAIN}", "")
+                .split("/")[2]
+            ):
                 LOGGER.debug("Fetching details from Integreat CMS for %s", self.chunk_source_path)
                 self.gui_source_path = (
                     get_page(self.chunk_source_path)

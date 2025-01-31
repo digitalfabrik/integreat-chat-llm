@@ -74,16 +74,11 @@ class AnswerService:
             },
             True
         )
-        search = SearchService(search_request, deduplicate_results=False)
+        search = SearchService(search_request, deduplicate_results=True)
         search_results = search.search_documents(
             settings.RAG_MAX_PAGES,
             include_text=True,
         ).documents
-        search_results = search.deduplicate_pages(
-            search_results,
-            settings.RAG_MAX_PAGES,
-            max_score=settings.RAG_DISTANCE_THRESHOLD,
-        )
         LOGGER.debug("Number of retrieved documents: %i", len(search_results))
         if settings.RAG_RELEVANCE_CHECK:
             search_results = asyncio.run(self.check_documents_relevance(
