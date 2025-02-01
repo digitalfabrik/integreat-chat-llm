@@ -88,7 +88,8 @@ class OpenSearch:
             self,
             response: dict,
             deduplicate : bool = False,
-            max_results : int = settings.SEARCH_MAX_DOCUMENTS
+            max_results : int = settings.SEARCH_MAX_DOCUMENTS,
+            min_score: int = settings.SEARCH_SCORE_THRESHOLD,
         ) -> dict:
         """
         Reduce the search result into a condensed dictionary. Skip duplicate URLs
@@ -97,6 +98,7 @@ class OpenSearch:
         param response: OpenSearch response dict
         param deduplicate: deduplicate results based on the URL
         param max_results: limit number of results to N documents
+        param min_score: Minimum required score for a hit to be included in the result
         """
         result = []
         found_urls = []
@@ -105,7 +107,7 @@ class OpenSearch:
         for document in response["hits"]["hits"]:
             if (
                 (deduplicate and document["_source"]["url"] in found_urls)
-                or document["_score"] < settings.SEARCH_SCORE_THRESHOLD
+                or document["_score"] < min_score
             ):
                 continue
             result.append({
@@ -135,20 +137,36 @@ class OpenSearch:
                 "hybrid": {
                     "queries": [
                         {
-                            "match": {
-                                "chunk_text": {
-                                    "query": message
-                                }
+                        "match": {
+                            "title": {
+                                "query": message
                             }
+                        }
                         },
                         {
-                            "neural": {
-                                "chunk_embedding": {
-                                    "query_text": message,
-                                    "model_id": self.model_id,
-                                    "k": 5
-                                }
+                        "match": {
+                            "chunk_text": {
+                                "query": message
                             }
+                        }
+                        },
+                        {
+                        "neural": {
+                            "title_embedding": {
+                                "query_text": message,
+                                "model_id": self.model_id,
+                                "k": 5
+                            }
+                        }
+                        },
+                        {
+                        "neural": {
+                            "chunk_embedding": {
+                                "query_text": message,
+                                "model_id": self.model_id,
+                                "k": 5
+                            }
+                        }
                         }
                     ]
                 }
@@ -276,12 +294,20 @@ class OpenSearchSetup(OpenSearch):
             "description": "A text embedding pipeline",
             "processors": [
                 {
-                "text_embedding": {
-                    "model_id": model_id,
-                    "field_map": {
-                        "chunk_text": "chunk_embedding"
+                    "text_embedding": {
+                        "model_id": model_id,
+                        "field_map": {
+                            "chunk_text": "chunk_embedding"
+                        }
                     }
-                }
+                },
+                {
+                    "text_embedding": {
+                        "model_id": model_id,
+                        "field_map": {
+                        "title": "title_embedding"
+                        }
+                    }
                 }
             ]
         }
@@ -295,20 +321,22 @@ class OpenSearchSetup(OpenSearch):
             "description": "Post processor for hybrid search",
             "phase_results_processors": [
                 {
-                "normalization-processor": {
-                    "normalization": {
-                    "technique": "min_max"
-                    },
-                    "combination": {
-                    "technique": "arithmetic_mean",
-                    "parameters": {
-                        "weights": [
-                            1 - settings.SEARCH_DENSE_WEIGHT, # Sparse / Keyword search
-                            settings.SEARCH_DENSE_WEIGHT      # Dense search
-                        ]
+                    "normalization-processor": {
+                        "normalization": {
+                            "technique": "min_max"
+                        },
+                        "combination": {
+                            "technique": "arithmetic_mean",
+                            "parameters": {
+                                "weights": [
+                                    0.15,  # title match
+                                    0.2,   # content match
+                                    0.15,  # title embedding
+                                    0.5    # content embedding
+                                ]
+                            }
+                        }
                     }
-                    }
-                }
                 }
             ]
         }
@@ -366,6 +394,16 @@ class OpenSearchSetup(OpenSearch):
                         "name": "hnsw",
                         "parameters": {}
                     }
+                },
+                "title_embedding": {
+                    "type": "knn_vector",
+                    "dimension": 384,
+                    "method": {
+                    "engine": "lucene",
+                    "space_type": "l2",
+                    "name": "hnsw",
+                    "parameters": {}
+                }
                 },
                 "chunk_text": {
                     "type": "text"
