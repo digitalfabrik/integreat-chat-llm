@@ -46,20 +46,20 @@ To integrate Zammad, the following configuration has to be set:
   * Set the user e-mail to `tech+integreat-cms@tuerantuer.org`
   * Assign the user to the `integreat-chat` group.
   * Grant `Agent` and `Customer` roles.
+* Ticket attributes (Admin -> Objects -> Ticket):
+  * Name: `automatic_answers`, Display: `Automatic Chatbot Answers`, Format: `Boolean Field`, True as default value
+  * Name: `initial_response_sent`, Display: `Initial response sent`, Format: `Boolean field`, False as default value
 * Create an access token for the Integreat CMS user with permission `Agent tickets`
 * Trigger for webhook:
   * Conditions: `Action is updated`, `Subject contains not "automatically generated message"`
   * Execute: webhook configured above
 * Auto response for new tickets in each language, exmple is `EN`
-  * Conditions: `State is new`, `Action is updated`, `Subject contains not "automatically generated message"`, `Title contains [EN]`
-  * Execute: `Note`, `visibility public`, `Subject "automatically generated message"`, add a message fitting the needs
+  * Conditions: `State is new`, `Action is updated`, `Subject contains not "automatically generated message"`, `Title contains [EN]`, `Initial response is no`
+  * Execute: `Note`, `visibility public`, `Subject "automatically generated message"`, `Initial response sent yes`, add a suitable message in the body.
+    * Example message: `Welcome to Integreat Chat $REGION_NAME in $LANGUAGE. Our team responds on weekdays, while our chatbot provides summary answers from linked articles, which you should use to verify important information.`
 * Scheduler to delete old tickets:
   * Run once a week
   * Conditions: `state is closed`, `Last contact before (relative) 6 months`
   * Action: delete
   * Disable Notifications: yes
-* Ticket attributes (Admin -> Objects -> Ticket):
-  * Name: `automatic_answers`
-  * Display: `Automatic Chatbot Answers`
-  * Format: `Boolean Field`
-  * True as default value
+
