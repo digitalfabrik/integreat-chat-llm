@@ -11,6 +11,11 @@ def get_page(path: str) -> dict:
     """
     get page object for RAG source
     """
+    path = (
+        path
+        .replace(f"https://{settings.INTEGREAT_APP_DOMAIN}", "")
+        .replace(f"https://{settings.INTEGREAT_CMS_DOMAIN}", "")
+    )
     region = path.split("/")[1]
     cur_language = path.split("/")[2]
     pages_url = (

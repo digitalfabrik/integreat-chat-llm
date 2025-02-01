@@ -78,7 +78,7 @@ RAG_HUMAN_REQUEST_CHECK = (
         config["DEFAULT"]["RAG_HUMAN_REQUEST_CHECK"] if
         "RAG_HUMAN_REQUEST_CHECK" in config["DEFAULT"] else "True"
     ) == "True"
-RAG_RELEVANCE_CHECK_MODEL = "deepseek-r1:1.5b"
+RAG_RELEVANCE_CHECK_MODEL = "llama3.3"
 RAG_QUERY_OPTIMIZATION = True
 RAG_QUERY_OPTIMIZATION_MODEL = "llama3.3"
 RAG_CONTEXT_MAX_LENGTH = 8000
@@ -88,15 +88,34 @@ RAG_FALLBACK_LANGUAGE = "en"
 # SEARCH_MAX_DOCUMENTS - number of documents retrieved from the VDB
 SEARCH_MAX_DOCUMENTS = 15
 SEARCH_DISTANCE_THRESHOLD = 30
+SEARCH_SCORE_THRESHOLD = 0.22
 SEARCH_MAX_PAGES = 10
 SEARCH_EMBEDDING_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+OPENSEARCH_EMBEDDING_MODEL_NAME = (
+    "huggingface/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+)
 SEARCH_EMBEDDING_MODEL = HuggingFaceEmbeddings(
     model_name=SEARCH_EMBEDDING_MODEL_NAME, show_progress=False
 )
 SEARCH_EMBEDDING_MODEL_SUPPORTED_LANGUAGES = [
-    "ar", "en", "de", "fa", "it", "uk", "fr", "bg", "hr", "ro", "tr", "uk", "vi"
+    "ar","bg","ca","cs","da","de","el","en","es","et","fa","fi","fr","gl","gu","he","hi",
+    "hr","hu","hy","id","it","ja","ka","ko","ku","lt","lv","mk","mn","mr","ms","my","nb",
+    "nl","pl","pt","ro","ru","sk","sl","sq","sr","sv","th","tr","uk","ur","vi"
 ]
+SEARCH_DENSE_WEIGHT = 0.7
 SEARCH_FALLBACK_LANGUAGE = "en"
+SEARCH_OPENSEARCH_MODEL_ID = config["OPENSEARCH"]["MODEL_ID"]
+SEARCH_OPENSEARCH_MODEL_GROUP_ID = config["OPENSEARCH"]["MODEL_GROUP_ID"]
+OPENSEARCH_USER = (
+    config["OPENSEARCH"]["USER"]
+    if "USER" in config["OPENSEARCH"]
+    else "admin"
+)
+OPENSEARCH_PASSWORD = (
+    config["OPENSEARCH"]["PASSWORD"]
+    if "PASSWORD" in config["OPENSEARCH"]
+    else "changeme"
+)
 
 VDB_HOST = "127.0.0.1"
 VDB_PORT = "19530"
