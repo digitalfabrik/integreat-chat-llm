@@ -8,4 +8,4 @@ class Messages:
 
     TALK_TO_HUMAN = """We will forward your request to a human advisor. Please wait."""
 
-    NOT_QUESTION = """Sorry, kindly re-phrase your message as a question you would like to ask."""
+    NOT_QUESTION = """Sorry, kindly formulate your message as a question that is as specific as possible."""
