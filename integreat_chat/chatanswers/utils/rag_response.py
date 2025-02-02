@@ -53,7 +53,7 @@ class RagResponse:
 
         citation = "".join(
             [
-                f"<li><a href='https://{settings.INTEGREAT_APP_DOMAIN}{path}'>{title}</a></li>"
+                f"<li><a href='{path}'>{title}</a></li>"
                 for path, title in sources
                 if title is not None
             ]
