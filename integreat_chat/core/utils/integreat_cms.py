@@ -7,6 +7,15 @@ from urllib.parse import quote
 
 from django.conf import settings
 
+def get_region_languages(region: str) -> list[str]:
+    """
+    get all language slugs of a given region
+    """
+    path = f"https://{settings.INTEGREAT_CMS_DOMAIN}/api/v3/{region}/languages/"
+    with urlopen(path) as response:
+        languages = json.loads(response.read())
+    return [language["code"] for language in languages]
+
 def get_page(path: str) -> dict:
     """
     get page object for RAG source
