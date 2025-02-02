@@ -22,10 +22,15 @@ class SearchService:
     def search_documents(
             self,
             max_results: int = settings.SEARCH_MAX_DOCUMENTS,
-            include_text: bool = False
-        ) -> list:
+            include_text: bool = False,
+            min_score: int = settings.SEARCH_SCORE_THRESHOLD,
+        ) -> SearchResponse:
         """
         Create summary answer for question
+
+        param max_results: limit number of results to N documents
+        param include_text: fetch full text of page from Integreat CMS
+        param min_score: Minimum required score for a hit to be included in the result
         """
         results = self.os.reduce_search_result(
             response = self.os.search(
@@ -34,7 +39,8 @@ class SearchService:
                 self.search_request.translated_message
             ),
             deduplicate = self.deduplicate_results,
-            max_results = max_results
+            max_results = max_results,
+            min_score = min_score,
         )
         documents = []
         for result in results:

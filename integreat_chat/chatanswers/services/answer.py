@@ -76,8 +76,9 @@ class AnswerService:
         )
         search = SearchService(search_request, deduplicate_results=True)
         search_results = search.search_documents(
-            settings.RAG_MAX_PAGES,
+            settings.RAG_MAX_PAGES * 2,
             include_text=True,
+            min_score=settings.RAG_SCORE_THRESHOLD,
         ).documents
         LOGGER.debug("Number of retrieved documents: %i", len(search_results))
         if settings.RAG_RELEVANCE_CHECK:
@@ -85,7 +86,7 @@ class AnswerService:
                 str(self.rag_request), search_results)
             )
             LOGGER.debug("Number of documents after relevance check: %i", len(search_results))
-        return search_results
+        return search_results[:settings.RAG_MAX_PAGES]
 
     def extract_answer(self) -> RagResponse:
         """
@@ -146,7 +147,7 @@ class AnswerService:
         kept_documents = []
         for i, response in enumerate(llmresponses):
             llm_response = LlmResponse(response)
-            if str(llm_response).startswith("yes"):
+            if str(llm_response).lower().startswith("yes"):
                 kept_documents.append(search_results[i])
         return kept_documents
 
