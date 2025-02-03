@@ -44,10 +44,13 @@ class LanguageService:
         LOGGER.debug("Finished message language detection: %s", stripped_language)
         return stripped_language
 
-    def classify_language(self, message):
+    def classify_language(self, message: str) -> str:
         """
         Check if a message fits the estimated language.
         Return another language tag, if it does not fit.
+
+        param message: the message of which the language should be detected
+        return: language slug of the detected language
         """
         prompt = LlmPrompt(
             settings.LANGUAGE_CLASSIFICATIONH_MODEL,
@@ -61,9 +64,12 @@ class LanguageService:
         response = LlmResponse(asyncio.run(self.llm_api.chat_prompt_session_wrapper(prompt)))
         return self.parse_language(response.as_dict())
 
-    def is_numerical(self, message):
+    def is_numerical(self, message: str) -> bool:
         """
         Check if message is numerical
+
+        param message: the message
+        return: true if the message is only a number
         """
         return re.match(r"^[0-9\s+\.\,]*$", message)
 
@@ -144,7 +150,7 @@ class LanguageService:
         cache.set(cache_key, translated_message)
         return translated_message
 
-    def opportunistic_translate(self, expected_language, message):
+    def opportunistic_translate(self, expected_language: str, message: str) -> str:
         """
         Translate if detected language does not fit the expected language
         """
