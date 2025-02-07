@@ -33,12 +33,7 @@ User question: {0}
 Retrieved document: {1}
 """
 
-    CHECK_QUESTION = """You are an internal component of a chatbot designed to filter out unnecessary conversation. Your task is to determine whether a user message expresses a tangible need and warrants a reply.
-
-The chatbot should ignore simple greetings or conversational prompts such as "Hi!", "How are you?" or "Who are you?"
-The chatbot should only respond to messages that contain a clear request, question, or a need.
-
-Your response should be a binary judgment. Reply "yes" if the message requires a response. Reply "no" if the message does not require a response.
+    CHECK_QUESTION = """Does the following message express a question or indicate a need? Respond with only "yes" or "no".
 
 Message: {0}
 """
