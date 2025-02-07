@@ -41,10 +41,7 @@ class Document:
                 .split("/")[2]
             ):
                 LOGGER.debug("Fetching details from Integreat CMS for %s", self.chunk_source_path)
-                self.gui_source_path = (
-                    get_page(self.chunk_source_path)
-                    ["available_languages"][self.gui_language]["path"]
-                )
+                self.gui_source_path = self.get_source_for_language(self.gui_language)[0]
             else:
                 self.gui_source_path = self.chunk_source_path
             LOGGER.debug("Fetching details from Integreat CMS for %s", self.gui_source_path)
@@ -69,7 +66,10 @@ class Document:
                 f"Page {self.chunk_source_path} does not have a "
                 f"translation for given language {language}"
             )
-        return translations[language]["path"], get_page(translations[language]["path"])["title"]
+        return (
+            f'https://{settings.INTEGREAT_APP_DOMAIN}{translations[language]["path"]}',
+            get_page(translations[language]["path"])["title"]
+        )
 
     def as_dict(self):
         """
